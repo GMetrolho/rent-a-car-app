@@ -1,14 +1,23 @@
 package model;
 
 import enums.Cargo;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "utilizadores")
 public class Utilizador {
 
     //region Variables
-    protected int ID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    protected long ID;
+    @Column(name = "name", nullable = false)
     protected String nome;
+    @Column(name = "email", nullable = false, unique = true)
     protected String email;
+    @Column(name = "passowrd", nullable = false)
     protected String password;
+    @Enumerated(EnumType.STRING)
     protected Cargo cargo;
     //#endregion
 
@@ -26,11 +35,11 @@ public class Utilizador {
     //#endregion
 
     //#region Getters and Setters
-    public int getID() {
+    public long getID() {
         return ID;
     }
 
-    public void setID(int ID) {
+    public void setID(long ID) {
         this.ID = ID;
     }
 

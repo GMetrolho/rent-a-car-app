@@ -5,7 +5,7 @@ import model.Utilizador;
 public class MenuService {
 
         public void ShowMenu(Utilizador user){
-            System.out.println("--------------------------------- BEM-VINDO AO STAND AUTOMOVEL ---------------------------------"); 
+            System.out.println("--------------------------------- BEM-VINDO AO STAND AUTOMOVEL ---------------------------------");
             System.out.println("Olá " + user.getCargo() + "" + user.getNome() + ", seja bem-vindo ao nosso stand de automóveis!");
             System.out.println("------------------------------------------------------------------------------------------------");
 
@@ -23,10 +23,9 @@ public class MenuService {
         private void menuAdmin(){
             System.out.println("Menu Admin:");
             System.out.println("1. Gerir Veículos");
-            System.out.println("2. Gerir Utilizadores");
-            System.out.println("3. Gerir Clientes");
-            System.out.println("4. Gerir Alugueres");
-            System.out.println("5. Sair");
+            System.out.println("2. Gerir Utilizadores"); // esta otimo assim acho redondante o anterior 
+            System.out.println("3. Gerir Alugueres");
+            System.out.println("4. Sair");
         }
 
         private void menuFuncionario(){
