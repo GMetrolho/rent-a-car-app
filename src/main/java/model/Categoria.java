@@ -1,10 +1,18 @@
 package model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table (name = "categoria")
 public class Categoria {
 
     //#region Variables
-    private int idCategoria;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "nome", nullable = false)
     private String nome;
+    @Column(name = "descricao")
     private String descricao;
     //#endregion
 
@@ -12,20 +20,20 @@ public class Categoria {
     public Categoria() {
     }
 
-    public Categoria(int idCategoria, String nome, String descricao) {
-        this.idCategoria = idCategoria;
+    public Categoria(Long id, String nome, String descricao) {
+        this.id = id;
         this.nome = nome;
         this.descricao = descricao;
     }
     //#endregion
 
     //#region Getters and Setters
-    public int getIdCategoria() {
-        return idCategoria;
+    public Long getID() {
+        return id;
     }
 
-    public void setIdCategoria(int idCategoria) {
-        this.idCategoria = idCategoria;
+    public void setID(Long id) {
+        this.id = id;
     }
 
     public String getNome() {

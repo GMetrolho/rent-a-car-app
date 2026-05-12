@@ -10,12 +10,12 @@ public class Utilizador {
     //region Variables
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected long ID;
-    @Column(name = "name", nullable = false)
+    protected Long id;
+    @Column(name = "nome", nullable = false)
     protected String nome;
     @Column(name = "email", nullable = false, unique = true)
     protected String email;
-    @Column(name = "passowrd", nullable = false)
+    @Column(name = "password", nullable = false)
     protected String password;
     @Enumerated(EnumType.STRING)
     protected Cargo cargo;
@@ -25,8 +25,8 @@ public class Utilizador {
     public Utilizador() {
     }
 
-    public Utilizador(int ID, String nome, String email, String password, Cargo cargo) {
-        this.ID = ID;
+    public Utilizador(Long id, String nome, String email, String password, Cargo cargo) {
+        this.id = id;
         this.nome = nome;
         this.email = email;
         this.password = password;
@@ -35,12 +35,12 @@ public class Utilizador {
     //#endregion
 
     //#region Getters and Setters
-    public long getID() {
-        return ID;
+    public Long getID() {
+        return id;
     }
 
-    public void setID(long ID) {
-        this.ID = ID;
+    public void setID(Long id) {
+        this.id = id;
     }
 
     public String getNome() {

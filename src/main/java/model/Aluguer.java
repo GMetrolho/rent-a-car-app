@@ -1,31 +1,46 @@
 package model;
 
 import java.time.LocalDateTime;
-
 import enums.Status_Aluguer;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "aluguer")
 public class Aluguer {
 
   // #region Variables
-  private int idAluguer;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  @Column(nullable = false)
   private LocalDateTime dataReserva;
   private LocalDateTime dataLevantamento;
   private LocalDateTime dataDevolucao;
+  @Column(name = "valor_final", precision = 10, scale = 2)
   private double valorFinalPrevisto;
 
+
+  @ManyToOne
+  @JoinColumn(name = "id_veiculo", nullable = false)
   private Veiculo veiculo;          // INFO: FK
+  @ManyToOne
+  @JoinColumn(name = "id_cliente", nullable = false)
   private Utilizador cliente;       // INFO: FK
+  @ManyToOne
+  @JoinColumn(name = "id_funcionario")
   private Utilizador funcionario;   // INFO: FK
 
   // ENUMs
+  @Enumerated(EnumType.STRING)
   private Status_Aluguer statusAluguer;
   // #endregion
 
   // Construtor Vazio
   public Aluguer() {}
 
-  public Aluguer(int idAluguer, LocalDateTime dataReserva, LocalDateTime dataLevantamento, LocalDateTime dataDevolucao, double valorFinalPrevisto, Veiculo veiculo,              Utilizador cliente, Utilizador funcionario, Status_Aluguer statusAluguer) {
-    this.idAluguer = idAluguer;
+  public Aluguer(Long id, LocalDateTime dataReserva, LocalDateTime dataLevantamento, LocalDateTime dataDevolucao, double valorFinalPrevisto, Veiculo veiculo,Utilizador cliente, Utilizador funcionario, Status_Aluguer statusAluguer) {
+    this.id = id;
     this.dataReserva = dataReserva;
     this.dataLevantamento = dataLevantamento;
     this.dataDevolucao = dataDevolucao;
@@ -37,12 +52,12 @@ public class Aluguer {
   }
 
 //#region Getters and Setters
-    public int getIdAluguer() {
-        return idAluguer;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdAluguer(int idAluguer) {
-        this.idAluguer = idAluguer;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public LocalDateTime getDataReserva() {

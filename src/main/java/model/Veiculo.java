@@ -5,23 +5,42 @@ import enums.Status;
 import enums.Tipo_Caixa;
 import enums.Tipo_Combustao;
 import enums.Tipo_Motor;
+// JPA
+import jakarta.persistence.*;
 
 
+@Entity
+@Table(name = "veiculo")
 public class Veiculo {
 
     //#region Variables
-    private int Id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "matricula", unique = true, nullable = false)
     private String matricula;
+    @Column(name = "marca", unique = false, nullable = false)
     private String marca;
+    @Column(name = "modelo", unique = false, nullable = false)
     private String modelo;
+    @Column(name = "ano", unique = false, nullable = false)
     private int ano;
+    @Column(name = "preco_diario")
     private double preco_diario;
-  
+
     //Enums
+    @Enumerated(EnumType.STRING)
     private Status status;
+    @Enumerated(EnumType.STRING)
     private Tipo_Caixa tipo_caixa;
+    @Enumerated(EnumType.STRING)
     private Tipo_Combustao tipo_combustao;
+    @Enumerated(EnumType.STRING)
     private Tipo_Motor tipo_motor;
+
+    @ManyToOne
+    @JoinColumn(name = "id_categoria")
+    private Categoria categoria;
     //#endregion
 
 
@@ -32,9 +51,9 @@ public class Veiculo {
     }
 
     //Usado diretamento no código
-    public Veiculo(int id, String matricula, String marca, String modelo, int ano, double preco_diario, Status status,
-            Tipo_Caixa tipo_caixa, Tipo_Combustao tipo_combustao, Tipo_Motor tipo_motor) {
-        this.Id = id;
+    public Veiculo(Long id, String matricula, String marca, String modelo, int ano, double preco_diario, Status status,
+            Tipo_Caixa tipo_caixa, Tipo_Combustao tipo_combustao, Tipo_Motor tipo_motor, Categoria categoria) {
+        this.id = id;
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
@@ -45,7 +64,9 @@ public class Veiculo {
         this.tipo_caixa = tipo_caixa;
         this.tipo_combustao = tipo_combustao;
         this.tipo_motor = tipo_motor;
-    
+
+        this.categoria = categoria;
+
     }
     //#endregion
 
@@ -53,11 +74,11 @@ public class Veiculo {
     //#region Getters and Setters
 
     //ID
-    public int getId() {
-        return Id;
+    public Long getID() {
+        return id;
     }
-    public void setId(int id) {
-        this.Id = id;
+    public void setID(Long id) {
+        this.id = id;
     }
 
     //Matricula
@@ -129,9 +150,18 @@ public class Veiculo {
         this.tipo_motor = tipo_motor;
     }
 
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria){
+        this.categoria = categoria;
+
+    }
+
     //#endregion
 
 
 }
 
-    
+

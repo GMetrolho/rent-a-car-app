@@ -1,10 +1,10 @@
 import model.Utilizador;
 import service.MenuService;
-import repository.UtilizadorRepository;
+import repository.UtilizadorRepositoryAntigo;
 
 public class Main {
     public static void main(String[] args) {
-        UtilizadorRepository repo = new UtilizadorRepository();
+        UtilizadorRepositoryAntigo repo = new UtilizadorRepositoryAntigo();
 
         // Vamos tentar fazer login com os dados que inseriste no MySQL
         Utilizador user = repo.login("adminteste123@gmail.com", "12345");
