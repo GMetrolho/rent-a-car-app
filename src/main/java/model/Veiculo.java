@@ -26,17 +26,17 @@ public class Veiculo {
     @Column(name = "ano", unique = false, nullable = false)
     private int ano;
     @Column(name = "preco_diario")
-    private double preco_diario;
+    private double precoDiario;
 
     //Enums
     @Enumerated(EnumType.STRING)
     private Status status;
     @Enumerated(EnumType.STRING)
-    private Tipo_Caixa tipo_caixa;
+    private Tipo_Caixa tipoCaixa;
     @Enumerated(EnumType.STRING)
-    private Tipo_Combustao tipo_combustao;
+    private Tipo_Combustao tipoCombustao;
     @Enumerated(EnumType.STRING)
-    private Tipo_Motor tipo_motor;
+    private Tipo_Motor tipoMotor;
 
     @ManyToOne
     @JoinColumn(name = "id_categoria")
@@ -51,113 +51,112 @@ public class Veiculo {
     }
 
     //Usado diretamento no código
-    public Veiculo(Long id, String matricula, String marca, String modelo, int ano, double preco_diario, Status status,
-            Tipo_Caixa tipo_caixa, Tipo_Combustao tipo_combustao, Tipo_Motor tipo_motor, Categoria categoria) {
+    public Veiculo(Long id, String matricula, String marca, String modelo, int ano, double precoDiario, Status status, Tipo_Caixa tipoCaixa, Tipo_Combustao tipoCombustao, Tipo_Motor tipoMotor, Categoria categoria) {
+
         this.id = id;
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
         this.ano = ano;
-        this.preco_diario = preco_diario;
-
+        this.precoDiario = precoDiario;
         this.status = status;
-        this.tipo_caixa = tipo_caixa;
-        this.tipo_combustao = tipo_combustao;
-        this.tipo_motor = tipo_motor;
-
+        this.tipoCaixa = tipoCaixa;
+        this.tipoCombustao = tipoCombustao;
+        this.tipoMotor = tipoMotor;
         this.categoria = categoria;
-
     }
     //#endregion
 
 
     //#region Getters and Setters
-
-    //ID
-    public Long getID() {
+    public Long getId() {
         return id;
     }
-    public void setID(Long id) {
+
+    public void setId(Long id) {
         this.id = id;
     }
 
-    //Matricula
     public String getMatricula() {
         return matricula;
     }
+
     public void setMatricula(String matricula) {
         this.matricula = matricula;
     }
 
-    //Marca
     public String getMarca() {
         return marca;
     }
+
     public void setMarca(String marca) {
         this.marca = marca;
     }
 
-    //Modelo
     public String getModelo() {
         return modelo;
     }
+
     public void setModelo(String modelo) {
         this.modelo = modelo;
     }
 
-    //Ano
     public int getAno() {
         return ano;
     }
+
     public void setAno(int ano) {
         this.ano = ano;
     }
 
-    //Preço Diário
-    public double getPreco_diario() {
-        return preco_diario;
-    }
-    public void setPreco_diario(double preco_diario) {
-        this.preco_diario = preco_diario;
+    public double getPrecoDiario() {
+        return precoDiario;
     }
 
-    //Enums
-    public Tipo_Caixa getTipo_caixa() {
-        return tipo_caixa;
-    }
-    public void setTipo_caixa(Tipo_Caixa tipo_caixa) {
-        this.tipo_caixa = tipo_caixa;
-    }
-
-    public Tipo_Combustao getTipo_combustao() {
-        return tipo_combustao;
-    }
-    public void setTipo_combustao(Tipo_Combustao tipo_combustao) {
-        this.tipo_combustao = tipo_combustao;
+    public void setPrecoDiario(double precoDiario) {
+        this.precoDiario = precoDiario;
     }
 
     public Status getStatus() {
         return status;
     }
+
     public void setStatus(Status status) {
         this.status = status;
     }
 
-    public Tipo_Motor getTipo_motor() {
-        return tipo_motor;
+    public Tipo_Caixa getTipoCaixa() {
+        return tipoCaixa;
     }
-    public void setTipo_motor(Tipo_Motor tipo_motor) {
-        this.tipo_motor = tipo_motor;
+
+    public void setTipoCaixa(Tipo_Caixa tipoCaixa) {
+        this.tipoCaixa = tipoCaixa;
+    }
+
+    public Tipo_Combustao getTipoCombustao() {
+        return tipoCombustao;
+    }
+
+    public void setTipoCombustao(Tipo_Combustao tipoCombustao) {
+        this.tipoCombustao = tipoCombustao;
+    }
+
+    public Tipo_Motor getTipoMotor() {
+        return tipoMotor;
+    }
+
+    public void setTipoMotor(Tipo_Motor tipoMotor) {
+        this.tipoMotor = tipoMotor;
     }
 
     public Categoria getCategoria() {
         return categoria;
     }
 
-    public void setCategoria(Categoria categoria){
+    public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
-
     }
+
 
     //#endregion
 
