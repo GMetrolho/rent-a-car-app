@@ -1,12 +1,12 @@
 package service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ch.qos.logback.classic.pattern.Util;
 import model.Utilizador;
 import repository.UtilizadorRepository;
-import java.util.*;
 
 @Service
 public class UtilizadorService {
