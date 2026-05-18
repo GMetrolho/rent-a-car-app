@@ -51,7 +51,7 @@ public class AluguerController {
             @RequestParam String dataLevantamento,
             @RequestParam String dataDevolucao) {
 
-        Veiculo veiculo = veiculoService.buscarPorId(idVeiculo);
+        Veiculo veiculo = veiculoService.buscarId(idVeiculo);
         Utilizador cliente = utilizadorService.buscarId(idCliente);
         LocalDateTime levantamento = LocalDateTime.parse(dataLevantamento);
         LocalDateTime devolucao = LocalDateTime.parse(dataDevolucao);

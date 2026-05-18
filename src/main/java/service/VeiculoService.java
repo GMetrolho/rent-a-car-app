@@ -44,7 +44,7 @@ public class VeiculoService {
     }
 
     // Buscar por ID
-    public Veiculo buscarPorId(long id) {
+    public Veiculo buscarId(long id) {
         return veiculoRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Veículo não encontrado!"));
     }
@@ -71,8 +71,8 @@ public class VeiculoService {
     }
 
     // Atualizar status
-    public Veiculo atualizarStatus(Long id, Status novoStatus) {
-        Veiculo veiculo = buscarPorId(id);
+    public Veiculo atualizarStatus(long id, Status novoStatus) {
+        Veiculo veiculo = buscarId(id);
         veiculo.setStatus(novoStatus);
         return veiculoRepository.save(veiculo);
     }

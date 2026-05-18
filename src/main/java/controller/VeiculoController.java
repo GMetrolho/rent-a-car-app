@@ -39,8 +39,8 @@ public class VeiculoController {
 
     // GET /veiculos/{id} — buscar por id
     @GetMapping("/{id}")
-    public ResponseEntity<Veiculo> buscarPorId(@PathVariable long id) {
-        return ResponseEntity.ok(veiculoService.buscarPorId(id));
+    public ResponseEntity<Veiculo> buscarId(@PathVariable long id) {
+        return ResponseEntity.ok(veiculoService.buscarId(id));
     }
 
     // POST /veiculos — adicionar
