@@ -76,7 +76,13 @@
         })
         .then(utilizador => {
           sessionStorage.setItem('utilizador', JSON.stringify(utilizador));
-          window.location.href = (utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO') ? 'dashboard.html' : 'index.html';
+          if (utilizador.cargo === 'ADMIN') {
+            window.location.href = 'admin_dashboard.html';
+          } else if (utilizador.cargo === 'FUNCIONARIO') {
+            window.location.href = 'dashboard.html';
+          } else {
+           window.location.href = 'index.html';
+          }
         })
         .catch(err => {
           erro.innerText = err.message || 'Email ou password incorretos!';

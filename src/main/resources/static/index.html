@@ -265,7 +265,11 @@
 
       grid.innerHTML = veiculos.map(v => `
         <div class="car-card">
-          <div class="car-img">🚗</div>
+          <div class="car-img">
+            <img src="img/${v.marca}_${v.modelo}.png"
+                style="width:100%;height:100%;object-fit:cover;border-radius:8px;"
+                onerror="this.parentElement.innerHTML='🚗'"/>
+          </div>
           <div class="car-name">${v.marca} ${v.modelo}</div>
           <div class="car-detail">⚙️ ${v.tipoCaixa || '—'}</div>
           <div class="car-detail">⛽ ${v.tipoCombustao || '—'}</div>
