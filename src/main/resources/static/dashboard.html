@@ -217,6 +217,7 @@
     // PROTEGER PAGINA
     const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
     if (!utilizador || (utilizador.cargo !== 'ADMIN' && utilizador.cargo !== 'FUNCIONARIO')) {
+      alert('Acesso Restrito! Área exclusiva para os funcionarios.')
       window.location.href = 'login.html';
     }
 
