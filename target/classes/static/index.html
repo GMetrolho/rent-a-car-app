@@ -103,7 +103,8 @@
       <div id="sidebarLogado" style="display:none;">
         <a class="sidebar-link" href="dashboard.html">📋 Dashboard</a>
       </div>
-      <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">
+      <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">º
+        <a class="sidebar-link acess" href="perfil.html">👤 Perfil</a>
         <div id="sidebarSair" class="sidebar-link danger" onclick="sair()" style="display:none;">🚪 Sair</div>
       </div>
     </div>
@@ -144,6 +145,16 @@
             <option value="">Todas</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filtroStatus">
+            <option value="">Todas</option>
+            <option value="DISPONIVEL">Disponível</option>
+            <option value="ALUGADO">Alugado</option>
+            <option value="MANUTENCAO">Manutenção</option>
+          </select>
+        </div>
+
         <button class="btn-filtrar" onclick="filtrarVeiculos()">🔍 Filtrar</button>
         <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
       </div>
@@ -190,14 +201,19 @@
     // NAV conforme login
     const navActions = document.getElementById('navActions');
     if (utilizador) {
+      const acess = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
+
       navActions.innerHTML = `
         <span class="navbar-user">👤 ${utilizador.nome}</span>
-        ${utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO'
-          ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>'
-          : ''}
+        ${acess ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
         <button class="btn-danger-custom" onclick="sair()">Sair</button>
       `;
-      document.getElementById('sidebarLogado').style.display = 'block';
+
+      // Só mostra o bloco do Dashboard na Sidebar se NÃO for Cliente
+      if (acess) {
+        document.getElementById('sidebarLogado').style.display = 'block';
+      }
+
       document.getElementById('sidebarSair').style.display = 'block';
     } else {
       navActions.innerHTML = `
@@ -277,18 +293,20 @@
       const caixa     = document.getElementById('filtroCaixa').value;
       const combustao = document.getElementById('filtroCombustao').value;
       const categoria = document.getElementById('filtroCategoria').value;
+      const status    = document.getElementById('filtroStatus').value;
 
       const filtrados = todosVeiculos.filter(v =>
         (!motor     || v.tipoMotor     === motor)     &&
         (!caixa     || v.tipoCaixa     === caixa)     &&
         (!combustao || v.tipoCombustao === combustao) &&
-        (!categoria || v.categoria?.id == categoria)
+        (!categoria || v.categoria?.id == categoria)  &&
+        (!status    || v.status        === status)
       );
       renderVeiculos(filtrados);
     }
 
     function limparFiltros() {
-      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria'].forEach(id => {
+      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria', 'filtroStatus'].forEach(id => {
         document.getElementById(id).value = '';
       });
       renderVeiculos(todosVeiculos);

@@ -144,6 +144,16 @@
             <option value="">Todas</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select id="filtroStatus">
+            <option value="">Todas</option>
+            <option value="DISPONIVEL">Disponível</option>
+            <option value="ALUGADO">Alugado</option>
+            <option value="MANUTENCAO">Manutenção</option>
+          </select>
+        </div>
+
         <button class="btn-filtrar" onclick="filtrarVeiculos()">🔍 Filtrar</button>
         <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
       </div>
@@ -190,14 +200,19 @@
     // NAV conforme login
     const navActions = document.getElementById('navActions');
     if (utilizador) {
+      const acess = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
+
       navActions.innerHTML = `
         <span class="navbar-user">👤 ${utilizador.nome}</span>
-        ${utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO'
-          ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>'
-          : ''}
+        ${acess ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
         <button class="btn-danger-custom" onclick="sair()">Sair</button>
       `;
-      document.getElementById('sidebarLogado').style.display = 'block';
+
+      // Só mostra o bloco do Dashboard na Sidebar se NÃO for Cliente
+      if (acess) {
+        document.getElementById('sidebarLogado').style.display = 'block';
+      }
+
       document.getElementById('sidebarSair').style.display = 'block';
     } else {
       navActions.innerHTML = `
@@ -277,18 +292,20 @@
       const caixa     = document.getElementById('filtroCaixa').value;
       const combustao = document.getElementById('filtroCombustao').value;
       const categoria = document.getElementById('filtroCategoria').value;
+      const status    = document.getElementById('filtroStatus').value;
 
       const filtrados = todosVeiculos.filter(v =>
         (!motor     || v.tipoMotor     === motor)     &&
         (!caixa     || v.tipoCaixa     === caixa)     &&
         (!combustao || v.tipoCombustao === combustao) &&
-        (!categoria || v.categoria?.id == categoria)
+        (!categoria || v.categoria?.id == categoria)  &&
+        (!status    || v.status        === status)
       );
       renderVeiculos(filtrados);
     }
 
     function limparFiltros() {
-      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria'].forEach(id => {
+      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria', 'filtroStatus'].forEach(id => {
         document.getElementById(id).value = '';
       });
       renderVeiculos(todosVeiculos);
