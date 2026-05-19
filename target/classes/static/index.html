@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoRent — Veículos</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <style>
+    .page-layout { display:flex; flex:1; }
+
+    /* SIDEBAR */
+    .sidebar { position:relative; }
+    .menu-toggle {
+      background:transparent; border:none; color:#fff;
+      font-size:22px; cursor:pointer; padding:4px 8px; margin-left:8px;
+    }
+
+    /* FILTROS */
+    .filters-bar {
+      background:#fff; border:1px solid var(--border);
+      border-radius:12px; padding:16px 20px;
+      margin-bottom:20px; display:flex;
+      gap:14px; flex-wrap:wrap; align-items:flex-end;
+    }
+    .filter-group { display:flex; flex-direction:column; gap:6px; min-width:130px; }
+    .filter-group label { font-size:12px; color:var(--text-muted); font-weight:500; }
+    .filter-group select {
+      border:1px solid var(--border); border-radius:8px;
+      padding:8px 12px; font-size:13px; background:#fff;
+      color:var(--text); cursor:pointer;
+    }
+    .btn-filtrar {
+      background:var(--blue); color:#fff; border:none;
+      border-radius:8px; padding:9px 20px; font-size:13px;
+      cursor:pointer; transition:background 0.2s;
+    }
+    .btn-filtrar:hover { background:#1d4ed8; }
+    .btn-limpar {
+      background:transparent; color:var(--text-muted);
+      border:1px solid var(--border); border-radius:8px;
+      padding:9px 16px; font-size:13px; cursor:pointer;
+    }
+
+    /* GRID DE CARROS */
+    .cars-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:16px; }
+    .car-card {
+      background:#fff; border:1px solid var(--border);
+      border-radius:12px; padding:16px;
+      display:flex; flex-direction:column; gap:10px;
+      transition:box-shadow 0.2s;
+    }
+    .car-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .car-img {
+      background:#f1f5f9; border-radius:8px; height:100px;
+      display:flex; align-items:center; justify-content:center;
+      color:#94a3b8; font-size:42px;
+    }
+    .car-name { font-size:15px; font-weight:600; color:var(--text); }
+    .car-detail { font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
+    .car-footer { display:flex; align-items:center; justify-content:space-between; }
+    .car-price { font-size:16px; font-weight:600; color:var(--blue); }
+    .btn-reservar {
+      background:var(--orange); color:#fff; border:none;
+      border-radius:8px; padding:9px; font-size:13px;
+      cursor:pointer; width:100%; font-weight:500;
+      transition:background 0.2s;
+    }
+    .btn-reservar:hover { background:#ea6c00; }
+    .btn-reservar:disabled { opacity:0.4; cursor:not-allowed; }
+
+    /* MAIN CONTENT */
+    .content { flex:1; padding:24px; overflow:auto; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+    .section-title { font-size:16px; font-weight:600; color:var(--text); }
+    .cars-count { font-size:13px; color:var(--text-muted); }
+    .empty-state { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
+
+    /* MODAL RESERVA */
+    .modal-info { font-size:13px; color:var(--text-muted); margin-bottom:20px; }
+    .modal-info strong { color:var(--text); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="index.html">
+      <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M3 17h1v1a1 1 0 002 0v-1h12v1a1 1 0 002 0v-1h1v-5l-2-6H5L3 12v5zm2.5-3a1 1 0 110-2 1 1 0 010 2zm9 0a1 1 0 110-2 1 1 0 010 2z"/></svg>
+      AutoRent
+    </a>
+    <div class="navbar-actions" id="navActions">
+      <!-- Preenchido pelo JS conforme login -->
+    </div>
+  </nav>
+
+  <div class="page-layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-section">Menu</div>
+      <a class="sidebar-link active" href="index.html">🚗 Veículos</a>
+      <div id="sidebarLogado" style="display:none;">
+        <a class="sidebar-link" href="dashboard.html">📋 Dashboard</a>
+      </div>
+      <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">
+        <div id="sidebarSair" class="sidebar-link danger" onclick="sair()" style="display:none;">🚪 Sair</div>
+      </div>
+    </div>
+
+    <!-- CONTEUDO -->
+    <div class="content">
+
+      <!-- FILTROS -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label>Tipo de Motor</label>
+          <select id="filtroMotor">
+            <option value="">Todos</option>
+            <option value="COMBUSTAO">Combustão</option>
+            <option value="HIBRIDO">Híbrido</option>
+            <option value="ELETRICO">Elétrico</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Caixa</label>
+          <select id="filtroCaixa">
+            <option value="">Todas</option>
+            <option value="MANUAL">Manual</option>
+            <option value="AUTOMATICO">Automático</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Combustível</label>
+          <select id="filtroCombustao">
+            <option value="">Todos</option>
+            <option value="GASOLINA">Gasolina</option>
+            <option value="GASOLEO">Gasóleo</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Categoria</label>
+          <select id="filtroCategoria">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <button class="btn-filtrar" onclick="filtrarVeiculos()">🔍 Filtrar</button>
+        <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+      </div>
+
+      <!-- LISTA CARROS -->
+      <div class="section-header">
+        <span class="section-title">Veículos disponíveis</span>
+        <span class="cars-count" id="carsCount"></span>
+      </div>
+      <div class="cars-grid" id="carsGrid">
+        <div class="empty-state">A carregar veículos...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL RESERVA -->
+  <div class="modal-overlay" id="modalReserva">
+    <div class="modal-box">
+      <button class="modal-close" onclick="fecharModal()">✕</button>
+      <div class="modal-title">Fazer Reserva</div>
+      <p class="modal-info">Veículo: <strong id="modalVeiculoNome"></strong></p>
+
+      <div class="alert-erro"    id="modalErro"></div>
+      <div class="alert-sucesso" id="modalSucesso"></div>
+
+      <div class="mb-3">
+        <label class="form-label-custom">Data de levantamento</label>
+        <input type="datetime-local" class="form-control-custom" id="dataLevantamento"/>
+      </div>
+      <div class="mb-3">
+        <label class="form-label-custom">Data de devolução</label>
+        <input type="datetime-local" class="form-control-custom" id="dataDevolucao"/>
+      </div>
+
+      <button class="btn-orange-custom w-100 mt-2" onclick="confirmarReserva()">Confirmar Reserva</button>
+    </div>
+  </div>
+
+  <script>
+    let todosVeiculos = [];
+    let veiculoSelecionado = null;
+    const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
+
+    // NAV conforme login
+    const navActions = document.getElementById('navActions');
+    if (utilizador) {
+      navActions.innerHTML = `
+        <span class="navbar-user">👤 ${utilizador.nome}</span>
+        ${utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO'
+          ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>'
+          : ''}
+        <button class="btn-danger-custom" onclick="sair()">Sair</button>
+      `;
+      document.getElementById('sidebarLogado').style.display = 'block';
+      document.getElementById('sidebarSair').style.display = 'block';
+    } else {
+      navActions.innerHTML = `
+        <a href="login.html" class="btn-outline-custom">Login</a>
+        <a href="register.html" class="btn-orange-custom">Registar</a>
+      `;
+    }
+
+    function sair() {
+      sessionStorage.removeItem('utilizador');
+      window.location.href = 'login.html';
+    }
+
+    // Carregar categorias
+    fetch('/categorias')
+      .then(r => r.json())
+      .then(cats => {
+        const sel = document.getElementById('filtroCategoria');
+        cats.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.nome;
+          sel.appendChild(opt);
+        });
+      }).catch(() => {});
+
+    // Carregar veículos
+    function carregarVeiculos() {
+      fetch('/veiculos')
+        .then(r => r.json())
+        .then(veiculos => {
+          todosVeiculos = veiculos;
+          renderVeiculos(veiculos);
+        })
+        .catch(() => {
+          document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>';
+        });
+    }
+
+    function renderVeiculos(veiculos) {
+      const grid  = document.getElementById('carsGrid');
+      const count = document.getElementById('carsCount');
+      count.textContent = `${veiculos.length} veículo(s) encontrado(s)`;
+
+      if (veiculos.length === 0) {
+        grid.innerHTML = '<div class="empty-state">Nenhum veículo encontrado.</div>';
+        return;
+      }
+
+      grid.innerHTML = veiculos.map(v => `
+        <div class="car-card">
+          <div class="car-img">🚗</div>
+          <div class="car-name">${v.marca} ${v.modelo}</div>
+          <div class="car-detail">⚙️ ${v.tipoCaixa || '—'}</div>
+          <div class="car-detail">⛽ ${v.tipoCombustao || '—'}</div>
+          <div class="car-detail">📅 ${v.ano}</div>
+          <div class="car-footer">
+            <span class="car-price">${v.precoDiario}€/dia</span>
+            <span class="${badgeStatus(v.status)}">${v.status}</span>
+          </div>
+          <button class="btn-reservar"
+            ${v.status !== 'DISPONIVEL' ? 'disabled' : ''}
+            onclick="abrirReserva(${JSON.stringify(v).replace(/"/g,'&quot;')})">
+            ${v.status === 'DISPONIVEL' ? 'Reservar' : 'Indisponível'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function badgeStatus(s) {
+      const m = { DISPONIVEL:'badge-disponivel', ALUGADO:'badge-alugado', MANUTENCAO:'badge-manutencao' };
+      return m[s] || 'badge-cliente';
+    }
+
+    function filtrarVeiculos() {
+      const motor     = document.getElementById('filtroMotor').value;
+      const caixa     = document.getElementById('filtroCaixa').value;
+      const combustao = document.getElementById('filtroCombustao').value;
+      const categoria = document.getElementById('filtroCategoria').value;
+
+      const filtrados = todosVeiculos.filter(v =>
+        (!motor     || v.tipoMotor     === motor)     &&
+        (!caixa     || v.tipoCaixa     === caixa)     &&
+        (!combustao || v.tipoCombustao === combustao) &&
+        (!categoria || v.categoria?.id == categoria)
+      );
+      renderVeiculos(filtrados);
+    }
+
+    function limparFiltros() {
+      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      renderVeiculos(todosVeiculos);
+    }
+
+    // MODAL RESERVA
+    function abrirReserva(veiculo) {
+      if (!utilizador) {
+        window.location.href = 'login.html';
+        return;
+      }
+      veiculoSelecionado = veiculo;
+      document.getElementById('modalVeiculoNome').textContent = `${veiculo.marca} ${veiculo.modelo}`;
+      document.getElementById('modalErro').style.display    = 'none';
+      document.getElementById('modalSucesso').style.display = 'none';
+      document.getElementById('modalReserva').classList.add('open');
+    }
+
+    function fecharModal() {
+      document.getElementById('modalReserva').classList.remove('open');
+      veiculoSelecionado = null;
+    }
+
+    function confirmarReserva() {
+      const levantamento = document.getElementById('dataLevantamento').value;
+      const devolucao    = document.getElementById('dataDevolucao').value;
+      const erro         = document.getElementById('modalErro');
+      const sucesso      = document.getElementById('modalSucesso');
+
+      erro.style.display = sucesso.style.display = 'none';
+
+      if (!levantamento || !devolucao) {
+        erro.innerText = 'Preenche as duas datas!';
+        erro.style.display = 'block';
+        return;
+      }
+
+      const params = new URLSearchParams({
+        idVeiculo: veiculoSelecionado.id,
+        idCliente: utilizador.id,
+        dataLevantamento: levantamento,
+        dataDevolucao:    devolucao
+      });
+
+      fetch('/alugueres?' + params.toString(), { method: 'POST' })
+        .then(res => {
+          if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+          return res.json();
+        })
+        .then(() => {
+          sucesso.innerText = 'Reserva feita com sucesso!';
+          sucesso.style.display = 'block';
+          setTimeout(() => { fecharModal(); carregarVeiculos(); }, 1500);
+        })
+        .catch(err => {
+          erro.innerText = err.message || 'Erro ao fazer reserva!';
+          erro.style.display = 'block';
+        });
+    }
+
+    carregarVeiculos();
+  </script>
+
+</body>
+</html>
