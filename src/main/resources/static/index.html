@@ -8,95 +8,59 @@
   <link rel="stylesheet" href="css/style.css"/>
   <style>
     .page-layout { display:flex; flex:1; }
-
-    /* SIDEBAR */
-    .sidebar { position:relative; }
-    .menu-toggle {
-      background:transparent; border:none; color:#fff;
-      font-size:22px; cursor:pointer; padding:4px 8px; margin-left:8px;
-    }
-
-    /* FILTROS */
-    .filters-bar {
-      background:#fff; border:1px solid var(--border);
-      border-radius:12px; padding:16px 20px;
-      margin-bottom:20px; display:flex;
-      gap:14px; flex-wrap:wrap; align-items:flex-end;
-    }
+    .filters-bar { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px 20px; margin-bottom:20px; display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end; }
     .filter-group { display:flex; flex-direction:column; gap:6px; min-width:130px; }
     .filter-group label { font-size:12px; color:var(--text-muted); font-weight:500; }
-    .filter-group select {
-      border:1px solid var(--border); border-radius:8px;
-      padding:8px 12px; font-size:13px; background:#fff;
-      color:var(--text); cursor:pointer;
-    }
-    .btn-filtrar {
-      background:var(--blue); color:#fff; border:none;
-      border-radius:8px; padding:9px 20px; font-size:13px;
-      cursor:pointer; transition:background 0.2s;
-    }
+    .filter-group select { border:1px solid var(--border); border-radius:8px; padding:8px 12px; font-size:13px; background:#fff; color:var(--text); cursor:pointer; }
+    .btn-filtrar { background:var(--blue); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-size:13px; cursor:pointer; }
     .btn-filtrar:hover { background:#1d4ed8; }
-    .btn-limpar {
-      background:transparent; color:var(--text-muted);
-      border:1px solid var(--border); border-radius:8px;
-      padding:9px 16px; font-size:13px; cursor:pointer;
-    }
+    .btn-limpar { background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:8px; padding:9px 16px; font-size:13px; cursor:pointer; }
 
-    /* GRID DE CARROS */
     .cars-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px,1fr)); gap:16px; }
-    .car-card {
-      background:#fff; border:1px solid var(--border);
-      border-radius:12px; padding:16px;
-      display:flex; flex-direction:column; gap:10px;
-      transition:box-shadow 0.2s;
-    }
+    .car-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:10px; transition:box-shadow 0.2s; cursor:pointer; }
     .car-card:hover { box-shadow:0 4px 20px rgba(0,0,0,0.08); }
-    .car-img {
-      background:#f1f5f9; border-radius:8px; height:100px;
-      display:flex; align-items:center; justify-content:center;
-      color:#94a3b8; font-size:42px;
-    }
+    .car-img { background:#f1f5f9; border-radius:8px; height:100px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:42px; overflow:hidden; }
+    .car-img img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
     .car-name { font-size:15px; font-weight:600; color:var(--text); }
     .car-detail { font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px; }
     .car-footer { display:flex; align-items:center; justify-content:space-between; }
     .car-price { font-size:16px; font-weight:600; color:var(--blue); }
-    .btn-reservar {
-      background:var(--orange); color:#fff; border:none;
-      border-radius:8px; padding:9px; font-size:13px;
-      cursor:pointer; width:100%; font-weight:500;
-      transition:background 0.2s;
-    }
+    .btn-reservar { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:9px; font-size:13px; cursor:pointer; width:100%; font-weight:500; }
     .btn-reservar:hover { background:#ea6c00; }
     .btn-reservar:disabled { opacity:0.4; cursor:not-allowed; }
-
-    /* MAIN CONTENT */
     .content { flex:1; padding:24px; overflow:auto; }
     .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
     .section-title { font-size:16px; font-weight:600; color:var(--text); }
     .cars-count { font-size:13px; color:var(--text-muted); }
     .empty-state { text-align:center; padding:40px; color:var(--text-muted); font-size:14px; }
 
-    /* MODAL RESERVA */
-    .modal-info { font-size:13px; color:var(--text-muted); margin-bottom:20px; }
-    .modal-info strong { color:var(--text); }
+    /* POP-UP VEICULO */
+    .popup-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+    .popup-img { width:100%; height:180px; object-fit:cover; border-radius:10px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; font-size:60px; margin-bottom:16px; overflow:hidden; }
+    .popup-img img { width:100%; height:100%; object-fit:cover; }
+    .popup-field { background:#f8fafc; border-radius:8px; padding:10px 14px; }
+    .popup-field-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+    .popup-field-value { font-size:14px; font-weight:500; color:var(--text); }
+    .popup-price { font-size:22px; font-weight:700; color:var(--blue); margin-bottom:16px; }
+    .popup-badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+
+    /* TAG CO2 */
+    .co2-tag { background:#dcfce7; color:#166534; font-size:12px; padding:4px 10px; border-radius:20px; }
+    .co2-tag.alto { background:#fee2e2; color:#991b1b; }
+    .co2-tag.medio { background:#fef9c3; color:#854d0e; }
   </style>
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <nav class="navbar">
     <a class="navbar-brand" href="index.html">
       <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M3 17h1v1a1 1 0 002 0v-1h12v1a1 1 0 002 0v-1h1v-5l-2-6H5L3 12v5zm2.5-3a1 1 0 110-2 1 1 0 010 2zm9 0a1 1 0 110-2 1 1 0 010 2z"/></svg>
       AutoRent
     </a>
-    <div class="navbar-actions" id="navActions">
-      <!-- Preenchido pelo JS conforme login -->
-    </div>
+    <div class="navbar-actions" id="navActions"></div>
   </nav>
 
   <div class="page-layout">
-
-    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-section">Menu</div>
       <a class="sidebar-link active" href="index.html">🚗 Veículos</a>
@@ -104,19 +68,17 @@
         <a class="sidebar-link" href="dashboard.html">📋 Dashboard</a>
       </div>
       <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">
-        <a class="sidebar-link acess" href="perfil.html">👤 Perfil</a>
+        <a class="sidebar-link" href="perfil.html">👤 Perfil</a>
         <div id="sidebarSair" class="sidebar-link danger" onclick="sair()" style="display:none;">🚪 Sair</div>
       </div>
     </div>
 
-    <!-- CONTEUDO -->
     <div class="content">
-
       <!-- FILTROS -->
       <div class="filters-bar">
         <div class="filter-group">
           <label>Tipo de Motor</label>
-          <select id="filtroMotor">
+          <select id="filtroMotor" onchange="onMotorChange()">
             <option value="">Todos</option>
             <option value="COMBUSTAO">Combustão</option>
             <option value="HIBRIDO">Híbrido</option>
@@ -131,7 +93,8 @@
             <option value="AUTOMATICO">Automático</option>
           </select>
         </div>
-        <div class="filter-group">
+        <!-- ② Combustível esconde quando motor = ELETRICO -->
+        <div class="filter-group" id="grupoCombustao">
           <label>Combustível</label>
           <select id="filtroCombustao">
             <option value="">Todos</option>
@@ -141,27 +104,23 @@
         </div>
         <div class="filter-group">
           <label>Categoria</label>
-          <select id="filtroCategoria">
-            <option value="">Todas</option>
-          </select>
+          <select id="filtroCategoria"><option value="">Todas</option></select>
         </div>
         <div class="filter-group">
-          <label>Status</label>
+          <label>Estado</label>
           <select id="filtroStatus">
-            <option value="">Todas</option>
+            <option value="">Todos</option>
             <option value="DISPONIVEL">Disponível</option>
             <option value="ALUGADO">Alugado</option>
             <option value="MANUTENCAO">Manutenção</option>
           </select>
         </div>
-
         <button class="btn-filtrar" onclick="filtrarVeiculos()">🔍 Filtrar</button>
-        <button class="btn-limpar" onclick="limparFiltros()">Limpar</button>
+        <button class="btn-limpar"  onclick="limparFiltros()">Limpar</button>
       </div>
 
-      <!-- LISTA CARROS -->
       <div class="section-header">
-        <span class="section-title">Veículos disponíveis</span>
+        <span class="section-title">Veículos</span>
         <span class="cars-count" id="carsCount"></span>
       </div>
       <div class="cars-grid" id="carsGrid">
@@ -170,126 +129,118 @@
     </div>
   </div>
 
+  <!-- POP-UP DETALHES VEICULO (ponto 14) -->
+  <div class="modal-overlay" id="modalDetalhes">
+    <div class="modal-box" style="max-width:520px;">
+      <button class="modal-close" onclick="fecharDetalhes()">✕</button>
+      <div id="popupImagem" class="popup-img">🚗</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+        <div class="modal-title" id="popupNome" style="margin-bottom:0;"></div>
+        <span id="popupBadge"></span>
+      </div>
+      <div class="popup-price" id="popupPreco"></div>
+      <div class="popup-badges" id="popupBadges"></div>
+      <div class="popup-grid" id="popupGrid"></div>
+      <button class="btn-orange-custom w-100" id="popupBtnReservar" onclick="reservarDoPopup()">Reservar</button>
+    </div>
+  </div>
+
   <!-- MODAL RESERVA -->
   <div class="modal-overlay" id="modalReserva">
     <div class="modal-box">
-      <button class="modal-close" onclick="fecharModal()">✕</button>
+      <button class="modal-close" onclick="fecharReserva()">✕</button>
       <div class="modal-title">Fazer Reserva</div>
-      <p class="modal-info">Veículo: <strong id="modalVeiculoNome"></strong></p>
-
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Veículo: <strong id="modalVeiculoNome"></strong></p>
       <div class="alert-erro"    id="modalErro"></div>
       <div class="alert-sucesso" id="modalSucesso"></div>
-
       <div class="mb-3">
         <label class="form-label-custom">Data de levantamento</label>
-        <input type="datetime-local" class="form-control-custom" id="dataLevantamento"/>
+        <!-- ① min é preenchido pelo JS com a data de hoje -->
+        <input type="datetime-local" class="form-control-custom" id="dataLevantamento" onchange="atualizarMinDevolucao()"/>
       </div>
       <div class="mb-3">
         <label class="form-label-custom">Data de devolução</label>
         <input type="datetime-local" class="form-control-custom" id="dataDevolucao"/>
       </div>
-
       <button class="btn-orange-custom w-100 mt-2" onclick="confirmarReserva()">Confirmar Reserva</button>
     </div>
   </div>
 
   <script>
-    let todosVeiculos = [];
+    let todosVeiculos      = [];
     let veiculoSelecionado = null;
     const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
 
-    // NAV conforme login
+    // ─── NAVBAR ───────────────────────────────
     const navActions = document.getElementById('navActions');
     if (utilizador) {
-      const acess = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
-
+      const isStaff = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
       navActions.innerHTML = `
         <span class="navbar-user">👤 ${utilizador.nome}</span>
-        ${acess ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
-        <button class="btn-danger-custom" onclick="sair()">Sair</button>
-      `;
-
-      // Só mostra o bloco do Dashboard na Sidebar se NÃO for Cliente
-      if (acess) {
-        document.getElementById('sidebarLogado').style.display = 'block';
-      }
-
+        ${isStaff ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
+        <button class="btn-danger-custom" onclick="sair()">Sair</button>`;
+      if (isStaff) document.getElementById('sidebarLogado').style.display = 'block';
       document.getElementById('sidebarSair').style.display = 'block';
     } else {
       navActions.innerHTML = `
-        <a href="login.html" class="btn-outline-custom">Login</a>
-        <a href="register.html" class="btn-orange-custom">Registar</a>
-      `;
+        <a href="login.html"    class="btn-outline-custom">Login</a>
+        <a href="register.html" class="btn-orange-custom">Registar</a>`;
     }
+    function sair() { sessionStorage.removeItem('utilizador'); window.location.href = 'login.html'; }
 
-    function sair() {
-      sessionStorage.removeItem('utilizador');
-      window.location.href = 'login.html';
-    }
+    // ─── CATEGORIAS ──────────────────────────
+    fetch('/categorias').then(r => r.json()).then(cats => {
+      const sel = document.getElementById('filtroCategoria');
+      cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.nome; sel.appendChild(o); });
+    }).catch(() => {});
 
-    // Carregar categorias
-    fetch('/categorias')
-      .then(r => r.json())
-      .then(cats => {
-        const sel = document.getElementById('filtroCategoria');
-        cats.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.nome;
-          sel.appendChild(opt);
-        });
-      }).catch(() => {});
-
-    // Carregar veículos
+    // ─── VEICULOS ────────────────────────────
     function carregarVeiculos() {
-      fetch('/veiculos')
-        .then(r => r.json())
-        .then(veiculos => {
-          todosVeiculos = veiculos;
-          renderVeiculos(veiculos);
-        })
-        .catch(() => {
-          document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>';
-        });
+      fetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
+        .catch(() => { document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>'; });
     }
 
     function renderVeiculos(veiculos) {
-      const grid  = document.getElementById('carsGrid');
-      const count = document.getElementById('carsCount');
-      count.textContent = `${veiculos.length} veículo(s) encontrado(s)`;
-
-      if (veiculos.length === 0) {
-        grid.innerHTML = '<div class="empty-state">Nenhum veículo encontrado.</div>';
-        return;
-      }
+      const grid = document.getElementById('carsGrid');
+      document.getElementById('carsCount').textContent = `${veiculos.length} veículo(s)`;
+      if (!veiculos.length) { grid.innerHTML = '<div class="empty-state">Nenhum veículo encontrado.</div>'; return; }
 
       grid.innerHTML = veiculos.map(v => `
-        <div class="car-card">
+        <div class="car-card" onclick='abrirDetalhes(${JSON.stringify(v).replace(/"/g,"&quot;")})'>
           <div class="car-img">
-            <img src="img/${v.marca}_${v.modelo}.png"
-                style="width:100%;height:100%;object-fit:cover;border-radius:8px;"
-                onerror="this.parentElement.innerHTML='🚗'"/>
+            ${v.imagemPath
+              ? `<img src='/\${v.imagemPath}'' onerror="this.parentElement.innerHTML='🚗'"/>`
+              : '🚗'}
           </div>
           <div class="car-name">${v.marca} ${v.modelo}</div>
           <div class="car-detail">⚙️ ${v.tipoCaixa || '—'}</div>
-          <div class="car-detail">⛽ ${v.tipoCombustao || '—'}</div>
           <div class="car-detail">📅 ${v.ano}</div>
           <div class="car-footer">
             <span class="car-price">${v.precoDiario}€/dia</span>
             <span class="${badgeStatus(v.status)}">${v.status}</span>
           </div>
-          <button class="btn-reservar"
-            ${v.status !== 'DISPONIVEL' ? 'disabled' : ''}
-            onclick="abrirReserva(${JSON.stringify(v).replace(/"/g,'&quot;')})">
+          <button class="btn-reservar" ${v.status !== 'DISPONIVEL' ? 'disabled' : ''}
+            onclick="event.stopPropagation(); abrirReserva(${JSON.stringify(v).replace(/"/g,'&quot;')})">
             ${v.status === 'DISPONIVEL' ? 'Reservar' : 'Indisponível'}
           </button>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function badgeStatus(s) {
-      const m = { DISPONIVEL:'badge-disponivel', ALUGADO:'badge-alugado', MANUTENCAO:'badge-manutencao' };
-      return m[s] || 'badge-cliente';
+      return { DISPONIVEL:'badge-disponivel', ALUGADO:'badge-alugado', MANUTENCAO:'badge-manutencao' }[s] || 'badge-cliente';
+    }
+
+    // ─── FILTROS ─────────────────────────────
+    // ② Esconder combustível quando motor é elétrico
+    function onMotorChange() {
+      const motor = document.getElementById('filtroMotor').value;
+      const grupo = document.getElementById('grupoCombustao');
+      if (motor === 'ELETRICO') {
+        grupo.style.display = 'none';
+        document.getElementById('filtroCombustao').value = '';
+      } else {
+        grupo.style.display = 'flex';
+      }
     }
 
     function filtrarVeiculos() {
@@ -298,81 +249,125 @@
       const combustao = document.getElementById('filtroCombustao').value;
       const categoria = document.getElementById('filtroCategoria').value;
       const status    = document.getElementById('filtroStatus').value;
-
-      const filtrados = todosVeiculos.filter(v =>
+      renderVeiculos(todosVeiculos.filter(v =>
         (!motor     || v.tipoMotor     === motor)     &&
         (!caixa     || v.tipoCaixa     === caixa)     &&
         (!combustao || v.tipoCombustao === combustao) &&
         (!categoria || v.categoria?.id == categoria)  &&
-        (!status    || v.status        === status)
-      );
-      renderVeiculos(filtrados);
+        (!status    || v.status        === status)));
     }
 
     function limparFiltros() {
-      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria', 'filtroStatus'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria','filtroStatus'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('grupoCombustao').style.display = 'flex';
       renderVeiculos(todosVeiculos);
     }
 
-    // MODAL RESERVA
-    function abrirReserva(veiculo) {
-      if (!utilizador) {
-        window.location.href = 'login.html';
-        return;
+    // ─── POP-UP DETALHES (ponto 14) ──────────
+    function abrirDetalhes(v) {
+      const img = document.getElementById('popupImagem');
+      img.innerHTML = v.imagemPath ? `<img src='/\${v.imagemPath}'' onerror="this.parentElement.innerHTML='🚗'"/>` : '🚗';
+
+      document.getElementById('popupNome').textContent  = `${v.marca} ${v.modelo}`;
+      document.getElementById('popupBadge').innerHTML   = `<span class="${badgeStatus(v.status)}">${v.status}</span>`;
+      document.getElementById('popupPreco').textContent = `${v.precoDiario}€ / dia`;
+
+      // Badges extras
+      let badges = `<span style="background:#dbeafe;color:#1e40af;font-size:12px;padding:4px 10px;border-radius:20px;">${v.tipoCaixa || '—'}</span>`;
+      if (v.tipoMotor) badges += `<span style="background:#f1f5f9;color:#475569;font-size:12px;padding:4px 10px;border-radius:20px;">${v.tipoMotor}</span>`;
+      if (v.co2) {
+        const cls = v.co2 > 150 ? 'alto' : v.co2 > 100 ? 'medio' : '';
+        badges += `<span class="co2-tag ${cls}">CO₂: ${v.co2} g/km</span>`;
       }
+      document.getElementById('popupBadges').innerHTML = badges;
+
+      // Grid de detalhes
+      const campos = [
+        ['📅 Ano',        v.ano        || '—'],
+        ['⛽ Combustível', v.tipoCombustao || (v.tipoMotor === 'ELETRICO' ? 'Elétrico' : '—')],
+        ['🔧 Cilindrada', v.cilindrada ? `${v.cilindrada} cc` : '—'],
+        ['⚡ Potência',   v.potencia   ? `${v.potencia} cv`   : '—'],
+        ['🗂️ Categoria',  v.categoria?.nome || '—'],
+        ['🔢 Matrícula',  v.matricula  || '—'],
+      ];
+      document.getElementById('popupGrid').innerHTML = campos.map(([l, val]) => `
+        <div class="popup-field"><div class="popup-field-label">${l}</div><div class="popup-field-value">${val}</div></div>`).join('');
+
+      // Botão reservar
+      const btn = document.getElementById('popupBtnReservar');
+      if (v.status === 'DISPONIVEL') {
+        btn.disabled = false; btn.style.opacity = '1';
+        btn.textContent = 'Reservar';
+      } else {
+        btn.disabled = true; btn.style.opacity = '0.4';
+        btn.textContent = 'Indisponível';
+      }
+
+      veiculoSelecionado = v;
+      document.getElementById('modalDetalhes').classList.add('open');
+    }
+
+    function fecharDetalhes() { document.getElementById('modalDetalhes').classList.remove('open'); }
+
+    function reservarDoPopup() {
+      fecharDetalhes();
+      abrirReserva(veiculoSelecionado);
+    }
+
+    // ─── MODAL RESERVA ───────────────────────
+    function abrirReserva(veiculo) {
+      if (!utilizador) { window.location.href = 'login.html'; return; }
       veiculoSelecionado = veiculo;
       document.getElementById('modalVeiculoNome').textContent = `${veiculo.marca} ${veiculo.modelo}`;
-      document.getElementById('modalErro').style.display    = 'none';
-      document.getElementById('modalSucesso').style.display = 'none';
+      document.getElementById('modalErro').style.display = document.getElementById('modalSucesso').style.display = 'none';
+
+      // ① Bloquear datas anteriores a hoje
+      const agora = new Date();
+      agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+      const minStr = agora.toISOString().slice(0, 16);
+      document.getElementById('dataLevantamento').min = minStr;
+      document.getElementById('dataLevantamento').value = '';
+      document.getElementById('dataDevolucao').min = minStr;
+      document.getElementById('dataDevolucao').value = '';
+
       document.getElementById('modalReserva').classList.add('open');
     }
 
-    function fecharModal() {
-      document.getElementById('modalReserva').classList.remove('open');
-      veiculoSelecionado = null;
+    // ① Quando muda levantamento, devolução mínima fica depois
+    function atualizarMinDevolucao() {
+      const lev = document.getElementById('dataLevantamento').value;
+      if (lev) document.getElementById('dataDevolucao').min = lev;
     }
 
-    function confirmarReserva() {
-      const levantamento = document.getElementById('dataLevantamento').value;
-      const devolucao    = document.getElementById('dataDevolucao').value;
-      const erro         = document.getElementById('modalErro');
-      const sucesso      = document.getElementById('modalSucesso');
+    function fecharReserva() { document.getElementById('modalReserva').classList.remove('open'); }
 
+    function confirmarReserva() {
+      const lev     = document.getElementById('dataLevantamento').value;
+      const dev     = document.getElementById('dataDevolucao').value;
+      const erro    = document.getElementById('modalErro');
+      const sucesso = document.getElementById('modalSucesso');
       erro.style.display = sucesso.style.display = 'none';
 
-      if (!levantamento || !devolucao) {
-        erro.innerText = 'Preenche as duas datas!';
-        erro.style.display = 'block';
-        return;
-      }
+      if (!lev || !dev) { erro.innerText = 'Preenche as duas datas!'; erro.style.display = 'block'; return; }
 
       const params = new URLSearchParams({
         idVeiculo: veiculoSelecionado.id,
         idCliente: utilizador.id,
-        dataLevantamento: levantamento,
-        dataDevolucao:    devolucao
+        dataLevantamento: lev,
+        dataDevolucao:    dev
       });
 
-      fetch('/alugueres?' + params.toString(), { method: 'POST' })
-        .then(res => {
-          if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
-          return res.json();
-        })
+      fetch('/alugueres?' + params, { method: 'POST' })
+        .then(res => { if (!res.ok) return res.text().then(m => { throw new Error(m); }); return res.json(); })
         .then(() => {
           sucesso.innerText = 'Reserva feita com sucesso!';
           sucesso.style.display = 'block';
-          setTimeout(() => { fecharModal(); carregarVeiculos(); }, 1500);
+          setTimeout(() => { fecharReserva(); carregarVeiculos(); }, 1500);
         })
-        .catch(err => {
-          erro.innerText = err.message || 'Erro ao fazer reserva!';
-          erro.style.display = 'block';
-        });
+        .catch(err => { erro.innerText = err.message || 'Erro ao fazer reserva!'; erro.style.display = 'block'; });
     }
 
     carregarVeiculos();
   </script>
-
 </body>
 </html>

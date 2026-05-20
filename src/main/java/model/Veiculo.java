@@ -1,21 +1,10 @@
 package model;
 
-//imports dos enums
 import enums.Status;
 import enums.Tipo_Caixa;
 import enums.Tipo_Combustao;
 import enums.Tipo_Motor;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "veiculos")
@@ -25,18 +14,29 @@ public class Veiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "matricula", unique = true, nullable = false)
     private String matricula;
-    @Column(name = "marca", unique = false, nullable = false)
+    @Column(name = "marca", nullable = false)
     private String marca;
-    @Column(name = "modelo", unique = false, nullable = false)
+    @Column(name = "modelo", nullable = false)
     private String modelo;
-    @Column(name = "ano", unique = false, nullable = false)
+    @Column(name = "ano", nullable = false)
     private int ano;
     @Column(name = "preco_diario")
     private double precoDiario;
 
-    //Enums
+    // ── Novos campos (Fase 1 — ponto 15) ──
+    @Column(name = "cilindrada")
+    private Integer cilindrada;         // ex: 1600 (cm³)
+
+    @Column(name = "potencia")
+    private Integer potencia;           // ex: 150 (cv)
+
+    @Column(name = "co2")
+    private Integer co2;                // ex: 120 (g/km)
+    // ──────────────────────────────────────
+
     @Enumerated(EnumType.STRING)
     private Status status;
     @Enumerated(EnumType.STRING)
@@ -52,29 +52,29 @@ public class Veiculo {
     //#endregion
 
 
-    //#region Contructors
+    //#region Constructors
+    public Veiculo() {}
 
-    //Usado para o Java/Framework trabalhar sozinho com a base de dados
-    public Veiculo() {
-    }
-
-    //Usado diretamento no código
-    public Veiculo(Long id, String matricula, String marca, String modelo, int ano, double precoDiario, Status status, Tipo_Caixa tipoCaixa, Tipo_Combustao tipoCombustao, Tipo_Motor tipoMotor, Categoria categoria) {
-
-        this.id = id;
-        this.matricula = matricula;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.ano = ano;
-        this.precoDiario = precoDiario;
-        this.status = status;
-        this.tipoCaixa = tipoCaixa;
+    public Veiculo(Long id, String matricula, String marca, String modelo, int ano,
+                   double precoDiario, Integer cilindrada, Integer potencia, Integer co2,
+                   Status status, Tipo_Caixa tipoCaixa, Tipo_Combustao tipoCombustao,
+                   Tipo_Motor tipoMotor, Categoria categoria) {
+        this.id           = id;
+        this.matricula    = matricula;
+        this.marca        = marca;
+        this.modelo       = modelo;
+        this.ano          = ano;
+        this.precoDiario  = precoDiario;
+        this.cilindrada   = cilindrada;
+        this.potencia     = potencia;
+        this.co2          = co2;
+        this.status       = status;
+        this.tipoCaixa    = tipoCaixa;
         this.tipoCombustao = tipoCombustao;
-        this.tipoMotor = tipoMotor;
-        this.categoria = categoria;
+        this.tipoMotor    = tipoMotor;
+        this.categoria    = categoria;
     }
     //#endregion
-
 
     //#region Getters and Setters
     public Long getId() {
@@ -125,6 +125,30 @@ public class Veiculo {
         this.precoDiario = precoDiario;
     }
 
+    public Integer getCilindrada() {
+        return cilindrada;
+    }
+
+    public void setCilindrada(Integer cilindrada) {
+        this.cilindrada = cilindrada;
+    }
+
+    public Integer getPotencia() {
+        return potencia;
+    }
+
+    public void setPotencia(Integer potencia) {
+        this.potencia = potencia;
+    }
+
+    public Integer getCo2() {
+        return co2;
+    }
+
+    public void setCo2(Integer co2) {
+        this.co2 = co2;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -165,10 +189,5 @@ public class Veiculo {
         this.categoria = categoria;
     }
 
-
     //#endregion
-
-
 }
-
-

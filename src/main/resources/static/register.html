@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="css/style.css"/>
   <style>
     .main-wrapper { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 16px; }
-    .auth-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:40px; width:100%; max-width:420px; }
+    .auth-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:40px; width:100%; max-width:460px; }
     .auth-card h1 { font-size:22px; font-weight:600; color:var(--text); margin-bottom:4px; }
     .auth-card .sub { font-size:14px; color:var(--text-muted); margin-bottom:28px; }
     .btn-registar { background:var(--orange); color:#fff; border:none; border-radius:8px; padding:12px; font-size:15px; font-weight:500; width:100%; cursor:pointer; transition:background 0.2s; margin-top:8px; }
@@ -17,6 +17,12 @@
     .btn-login-link:hover { background:var(--blue); color:#fff; }
     .divider { display:flex; align-items:center; gap:12px; margin:20px 0; color:var(--text-muted); font-size:13px; }
     .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* Toggle tipo de conta */
+    .tipo-conta-toggle { display:flex; gap:10px; margin-bottom:20px; }
+    .tipo-btn { flex:1; padding:12px; border-radius:10px; border:1.5px solid var(--border); background:#fff; font-size:14px; font-weight:500; cursor:pointer; transition:all 0.2s; color:var(--text-muted); text-align:center; }
+    .tipo-btn.active { border-color:var(--blue); background:#eff6ff; color:var(--blue); }
+    .tipo-btn span { display:block; font-size:22px; margin-bottom:4px; }
   </style>
 </head>
 <body>
@@ -31,48 +37,100 @@
   <div class="main-wrapper">
     <div class="auth-card">
       <h1>Criar conta</h1>
-      <p class="sub">Regista-te para fazer reservas</p>
+      <p class="sub">Escolhe o tipo de conta e regista-te</p>
 
       <div class="alert-erro"    id="erro"></div>
       <div class="alert-sucesso" id="sucesso"></div>
 
-      <div class="mb-3">
-        <label class="form-label-custom">Nome completo</label>
-        <input type="text" class="form-control-custom" id="nome" placeholder="João Silva"/>
+      <!-- TIPO DE CONTA -->
+      <div class="tipo-conta-toggle">
+        <div class="tipo-btn active" id="btnPessoal" onclick="selecionarTipo('PESSOAL')">
+          <span>👤</span>Pessoal
+        </div>
+        <div class="tipo-btn" id="btnEmpresa" onclick="selecionarTipo('EMPRESA')">
+          <span>🏢</span>Empresa
+        </div>
       </div>
-      <div class="mb-3">
-        <label class="form-label-custom">Email</label>
-        <input type="email" class="form-control-custom" id="email" placeholder="email@exemplo.com"/>
-      </div>
-      <div class="mb-3">
-        <label class="form-label-custom">Password</label>
-        <input type="password" class="form-control-custom" id="password" placeholder="Mínimo 8 caracteres"/>
-      </div>
-      <div class="mb-3">
-        <label class="form-label-custom">Confirmar password</label>
-        <input type="password" class="form-control-custom" id="confirmar" placeholder="Repete a password"/>
+      <input type="hidden" id="tipoConta" value="PESSOAL"/>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label-custom">Nome completo</label>
+          <input type="text" class="form-control-custom" id="nome" placeholder="João Silva"/>
+        </div>
+        <div class="col-12">
+          <label class="form-label-custom">Email</label>
+          <input type="email" class="form-control-custom" id="email" placeholder="email@exemplo.com"/>
+        </div>
+        <div class="col-12">
+          <label class="form-label-custom">Telefone</label>
+          <input type="tel" class="form-control-custom" id="telefone" placeholder="912 345 678"/>
+        </div>
+
+        <!-- NIF — obrigatório empresa, opcional pessoal -->
+        <div class="col-12" id="campoNif">
+          <label class="form-label-custom" id="labelNif">NIF <span id="nifOpcional" style="color:var(--text-muted);font-weight:400;">(opcional)</span></label>
+          <input type="text" class="form-control-custom" id="nif" placeholder="123456789"/>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label-custom">Password</label>
+          <input type="password" class="form-control-custom" id="password" placeholder="Mínimo 8 caracteres"/>
+        </div>
+        <div class="col-12">
+          <label class="form-label-custom">Confirmar password</label>
+          <input type="password" class="form-control-custom" id="confirmar" placeholder="Repete a password"/>
+        </div>
       </div>
 
-      <button class="btn-registar" onclick="registar()">Criar conta</button>
+      <button class="btn-registar mt-3" onclick="registar()">Criar conta</button>
       <div class="divider">ou</div>
       <a class="btn-login-link" href="login.html">Já tens conta? Entra aqui</a>
     </div>
   </div>
 
   <script>
+    let tipoContaAtual = 'PESSOAL';
+
+    function selecionarTipo(tipo) {
+      tipoContaAtual = tipo;
+      document.getElementById('tipoConta').value = tipo;
+
+      document.getElementById('btnPessoal').classList.toggle('active', tipo === 'PESSOAL');
+      document.getElementById('btnEmpresa').classList.toggle('active', tipo === 'EMPRESA');
+
+      // NIF obrigatório só para empresa
+      if (tipo === 'EMPRESA') {
+        document.getElementById('nifOpcional').style.display = 'none';
+        document.getElementById('nif').placeholder = 'NIF obrigatório';
+        document.getElementById('nif').required = true;
+      } else {
+        document.getElementById('nifOpcional').style.display = 'inline';
+        document.getElementById('nif').placeholder = '123456789';
+        document.getElementById('nif').required = false;
+      }
+    }
+
     function registar() {
       const nome      = document.getElementById('nome').value.trim();
       const email     = document.getElementById('email').value.trim();
+      const telefone  = document.getElementById('telefone').value.trim();
+      const nif       = document.getElementById('nif').value.trim();
       const password  = document.getElementById('password').value.trim();
       const confirmar = document.getElementById('confirmar').value.trim();
+      const tipoConta = document.getElementById('tipoConta').value;
       const erro      = document.getElementById('erro');
       const sucesso   = document.getElementById('sucesso');
 
-      erro.style.display    = 'none';
-      sucesso.style.display = 'none';
+      erro.style.display = sucesso.style.display = 'none';
 
       if (!nome || !email || !password || !confirmar) {
-        erro.innerText = 'Preenche todos os campos!';
+        erro.innerText = 'Preenche todos os campos obrigatórios!';
+        erro.style.display = 'block';
+        return;
+      }
+      if (tipoConta === 'EMPRESA' && !nif) {
+        erro.innerText = 'NIF é obrigatório para contas de empresa!';
         erro.style.display = 'block';
         return;
       }
@@ -90,7 +148,7 @@
       fetch('/utilizadores/registar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome, email, password, cargo: 'CLIENTE' })
+        body: JSON.stringify({ nome, email, password, telefone, nif, tipoConta, cargo: 'CLIENTE' })
       })
       .then(res => {
         if (!res.ok) return res.text().then(msg => { throw new Error(msg); });

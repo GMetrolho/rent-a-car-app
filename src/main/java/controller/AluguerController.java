@@ -68,7 +68,7 @@ public class AluguerController {
     // PUT /alugueres/{id}/devolver — devolver
     @PutMapping("/{id}/devolver")
     public ResponseEntity<Aluguer> devolver(@PathVariable long id) {
-        return ResponseEntity.ok(aluguerService.devolver(id));
+        return ResponseEntity.ok(aluguerService.pedirDevolucao(id));
     }
 
     // PUT /alugueres/{id}/cancelar — cancelar
