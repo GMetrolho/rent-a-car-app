@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
   <style>
     .page-layout { display:flex; flex:1; min-height:0; }
     .content { flex:1; padding:24px; overflow:auto; }
@@ -78,10 +80,7 @@
       <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M3 17h1v1a1 1 0 002 0v-1h12v1a1 1 0 002 0v-1h1v-5l-2-6H5L3 12v5zm2.5-3a1 1 0 110-2 1 1 0 010 2zm9 0a1 1 0 110-2 1 1 0 010 2z"/></svg>
       AutoRent
     </a>
-    <div class="navbar-actions">
-      <span class="navbar-user" id="navUser"></span>
-      <button class="btn-danger-custom" onclick="sair()">Sair</button>
-    </div>
+    <div class="navbar-actions" id="navActions"></div>
   </nav>
 
   <div class="page-layout">
@@ -96,8 +95,6 @@
       <div class="sidebar-link" id="linkUtilizadores" onclick="mostrarSecao('utilizadores', this)" style="display:none;">👥 Utilizadores</div>
       <div style="margin-top:auto; border-top:1px solid #2d3f55; padding-top:16px; margin-top:24px;">
         <a class="sidebar-link" href="index.html">🏠 Página inicial</a>
-        <a class="sidebar-link" href="perfil.html">👤 Perfil</a>
-        <div class="sidebar-link danger" onclick="sair()">🚪 Sair</div>
       </div>
     </div>
 
@@ -300,40 +297,27 @@
   </div>
 
   <script>
-    // PROTEGER PAGINA
-    const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
-    if (!utilizador || (utilizador.cargo !== 'ADMIN' && utilizador.cargo !== 'FUNCIONARIO')) {
-      alert('Acesso Restrito! Área exclusiva para os funcionários.');
-      window.location.href = 'login.html';
+    // PROTEGER PÁGINA
+    const utilizadorLogado = verificarSessao();
+
+    if (utilizadorLogado) {
+      // Exibe a aba de utilizadores se for ADMIN
+      if (utilizadorLogado.cargo === 'ADMIN') {
+        document.getElementById('linkUtilizadores').style.display = 'flex';
+      }
     }
 
-    document.getElementById('navUser').textContent = `👤 ${utilizador.nome} (${utilizador.cargo})`;
+    // Navegar para secção via URL ?s=alugueres
+    (function aplicarSecaoURL() {
+      const params = new URLSearchParams(window.location.search);
+      const s = params.get('s');
+      if (s) {
+        const el = document.querySelector(`[onclick*="'${s}'"]`);
+        if (el) mostrarSecao(s, el);
+      }
+    })();
 
-    if (utilizador.cargo === 'ADMIN') {
-      document.getElementById('linkUtilizadores').style.display = 'flex';
-    }
-
-    function sair() {
-      sessionStorage.removeItem('utilizador');
-      window.location.href = 'login.html';
-    }
-
-    function mostrarSecao(nome, el) {
-      document.querySelectorAll('.secao').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-      document.getElementById('secao-' + nome).classList.add('active');
-      el.classList.add('active');
-
-      if (nome === 'overview')     carregarOverview();
-      if (nome === 'alugueres')    carregarAlugueres();
-      if (nome === 'veiculos')     carregarVeiculos();
-      if (nome === 'categorias')   carregarCategorias();
-      if (nome === 'utilizadores') carregarUtilizadores();
-    }
-
-    // ─────────────────────────────────────────────
-    // OVERVIEW / CHARTS
-    // ─────────────────────────────────────────────
+    // Gráficos do painel admin — definidos fora do if para ficarem acessíveis
     let chartAlugueres = null;
     let chartFrota = null;
 
@@ -344,18 +328,15 @@
         fetch('/utilizadores').then(r => r.json())
       ]).then(([alugueres, veiculos, utilizadores]) => {
 
-        // Stats topo
         document.getElementById('statAlugueres').textContent = alugueres.length;
         document.getElementById('statAtivos').textContent    = alugueres.filter(a => a.statusAluguer === 'ATIVA').length;
         document.getElementById('statPendentes').textContent = alugueres.filter(a => a.statusAluguer === 'PENDENTE').length;
         document.getElementById('statVeiculos').textContent  = veiculos.length;
 
-        // Lucro total (alugueres concluídos)
         const concluidos = alugueres.filter(a => a.statusAluguer === 'CONCLUIDA');
         const lucroTotal = concluidos.reduce((sum, a) => sum + (a.valorFinalPrevisto || 0), 0);
         document.getElementById('lucroTotal').textContent = lucroTotal.toFixed(2) + '€';
 
-        // Lucro este mês
         const agora = new Date();
         const mesAtual = agora.getMonth();
         const anoAtual = agora.getFullYear();
@@ -366,10 +347,8 @@
           })
           .reduce((sum, a) => sum + (a.valorFinalPrevisto || 0), 0);
         document.getElementById('lucroMes').textContent = lucroMes.toFixed(2) + '€';
-        document.getElementById('lucroMesLabel').textContent =
-          agora.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
+        document.getElementById('lucroMesLabel').textContent = agora.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
 
-        // Frota
         const disponiveis  = veiculos.filter(v => v.status === 'DISPONIVEL').length;
         const alugados     = veiculos.filter(v => v.status === 'ALUGADO').length;
         const manutencao   = veiculos.filter(v => v.status === 'MANUTENCAO').length;
@@ -377,11 +356,9 @@
         document.getElementById('veiculosAlugados').textContent    = alugados;
         document.getElementById('veiculosManutencao').textContent  = manutencao;
 
-        // Clientes
         const clientes = utilizadores.filter(u => u.cargo === 'CLIENTE').length;
         document.getElementById('totalClientes').textContent = clientes;
 
-        // GRÁFICO ALUGUERES
         const pendentes  = alugueres.filter(a => a.statusAluguer === 'PENDENTE').length;
         const ativos     = alugueres.filter(a => a.statusAluguer === 'ATIVA').length;
         const cancelados = alugueres.filter(a => a.statusAluguer === 'CANCELADO').length;
@@ -397,277 +374,25 @@
               borderWidth: 2, borderColor: '#fff'
             }]
           },
-          options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
-          }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } } }
         });
 
-        // GRÁFICO FROTA
         if (chartFrota) chartFrota.destroy();
         chartFrota = new Chart(document.getElementById('chartFrota'), {
           type: 'bar',
           data: {
             labels: ['Disponíveis', 'Alugados', 'Manutenção'],
-            datasets: [{
-              label: 'Veículos',
-              data: [disponiveis, alugados, manutencao],
-              backgroundColor: ['#22c55e', '#f97316', '#ef4444'],
-              borderRadius: 8, borderSkipped: false
-            }]
+            datasets: [{ label: 'Veículos', data: [disponiveis, alugados, manutencao], backgroundColor: ['#22c55e', '#f97316', '#ef4444'], borderRadius: 8, borderSkipped: false }]
           },
           options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } },
-              x: { grid: { display: false } }
-            }
+            responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
           }
         });
       });
     }
 
-    // ─────────────────────────────────────────────
-    // ALUGUERES
-    // ─────────────────────────────────────────────
-    function carregarAlugueres() {
-      fetch('/alugueres')
-        .then(r => r.json())
-        .then(lista => {
-          document.getElementById('statAlugueres').textContent = lista.length;
-          document.getElementById('statAtivos').textContent    = lista.filter(a => a.statusAluguer === 'ATIVA').length;
-          document.getElementById('statPendentes').textContent = lista.filter(a => a.statusAluguer === 'PENDENTE').length;
-
-          document.getElementById('bodyAlugueres').innerHTML = lista.map(a => `
-            <tr>
-              <td>#${a.id}</td>
-              <td>${a.cliente?.nome || '—'}</td>
-              <td>${a.veiculo?.marca || ''} ${a.veiculo?.modelo || ''}</td>
-              <td>${formatData(a.dataLevantamento)}</td>
-              <td>${formatData(a.dataDevolucao)}</td>
-              <td>${(a.valorFinalPrevisto || 0).toFixed(2)}€</td>
-              <td><span class="badge-${a.statusAluguer?.toLowerCase()}">${a.statusAluguer}</span></td>
-              <td><div class="acoes">
-                ${a.statusAluguer === 'PENDENTE'  ? `<button class="btn-tbl-ok"  onclick="acaoAluguer(${a.id},'confirmar')">Confirmar</button>` : ''}
-                ${a.statusAluguer === 'ATIVA'     ? `<button class="btn-tbl-ok"  onclick="acaoAluguer(${a.id},'devolver')">Devolver</button>`   : ''}
-                ${a.statusAluguer !== 'CONCLUIDA' && a.statusAluguer !== 'CANCELADO'
-                  ? `<button class="btn-tbl-del" onclick="acaoAluguer(${a.id},'cancelar')">Cancelar</button>` : ''}
-              </div></td>
-            </tr>
-          `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">Sem alugueres.</td></tr>';
-        });
-    }
-
-    function acaoAluguer(id, acao) {
-      fetch(`/alugueres/${id}/${acao}`, { method: 'PUT' })
-        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-        .then(() => { mostrarMsg('aluguerSucesso', 'Operação realizada com sucesso!'); carregarAlugueres(); })
-        .catch(() => mostrarMsg('aluguerErro', 'Erro ao executar operação!'));
-    }
-
-    // ─────────────────────────────────────────────
-    // VEICULOS
-    // ─────────────────────────────────────────────
-    let categorias = [];
-
-    function carregarVeiculos() {
-      fetch('/veiculos')
-        .then(r => r.json())
-        .then(lista => {
-          document.getElementById('statVeiculos').textContent = lista.length;
-          document.getElementById('bodyVeiculos').innerHTML = lista.map(v => `
-            <tr>
-              <td>${v.matricula}</td>
-              <td>${v.marca}</td>
-              <td>${v.modelo}</td>
-              <td>${v.ano}</td>
-              <td>${v.precoDiario}€</td>
-              <td><span class="badge-${v.status?.toLowerCase()}">${v.status}</span></td>
-              <td><div class="acoes">
-                <button class="btn-tbl-edit" onclick='abrirModalVeiculo(${JSON.stringify(v)})'>Editar</button>
-                <button class="btn-tbl-del"  onclick="apagarVeiculo(${v.id})">Apagar</button>
-              </div></td>
-            </tr>
-          `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Sem veículos.</td></tr>';
-        });
-    }
-
-    function abrirModalVeiculo(v) {
-      document.getElementById('modalVeiculoErro').style.display = 'none';
-      fetch('/categorias').then(r => r.json()).then(cats => {
-        categorias = cats;
-        const sel = document.getElementById('vCategoria');
-        sel.innerHTML = cats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
-      });
-
-      if (v) {
-        document.getElementById('modalVeiculoTitulo').textContent = 'Editar Veículo';
-        document.getElementById('veiculoId').value   = v.id;
-        document.getElementById('vMatricula').value  = v.matricula;
-        document.getElementById('vMarca').value      = v.marca;
-        document.getElementById('vModelo').value     = v.modelo;
-        document.getElementById('vAno').value        = v.ano;
-        document.getElementById('vPreco').value      = v.precoDiario;
-        document.getElementById('vStatus').value     = v.status;
-        document.getElementById('vMotor').value      = v.tipoMotor;
-        document.getElementById('vCaixa').value      = v.tipoCaixa;
-        document.getElementById('vCombustao').value  = v.tipoCombustao;
-        setTimeout(() => { if (v.categoria) document.getElementById('vCategoria').value = v.categoria.id; }, 300);
-      } else {
-        document.getElementById('modalVeiculoTitulo').textContent = 'Adicionar Veículo';
-        document.getElementById('veiculoId').value = '';
-        ['vMatricula','vMarca','vModelo','vAno','vPreco'].forEach(id => document.getElementById(id).value = '');
-      }
-      document.getElementById('modalVeiculo').classList.add('open');
-    }
-
-    function fecharModalVeiculo() { document.getElementById('modalVeiculo').classList.remove('open'); }
-
-    function guardarVeiculo() {
-      const id = document.getElementById('veiculoId').value;
-      const catId = document.getElementById('vCategoria').value;
-      const body = {
-        matricula:     document.getElementById('vMatricula').value,
-        marca:         document.getElementById('vMarca').value,
-        modelo:        document.getElementById('vModelo').value,
-        ano:           parseInt(document.getElementById('vAno').value),
-        precoDiario:   parseFloat(document.getElementById('vPreco').value),
-        status:        document.getElementById('vStatus').value,
-        tipoMotor:     document.getElementById('vMotor').value,
-        tipoCaixa:     document.getElementById('vCaixa').value,
-        tipoCombustao: document.getElementById('vCombustao').value,
-        categoria:     catId ? { id: parseInt(catId) } : null
-      };
-
-      const url    = id ? `/veiculos/${id}` : '/veiculos';
-      const method = id ? 'PUT' : 'POST';
-
-      fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-        .then(r => { if (!r.ok) return r.text().then(m => { throw new Error(m); }); return r.json(); })
-        .then(() => { fecharModalVeiculo(); carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo guardado!'); })
-        .catch(err => { document.getElementById('modalVeiculoErro').innerText = err.message; document.getElementById('modalVeiculoErro').style.display = 'block'; });
-    }
-
-    function apagarVeiculo(id) {
-      if (!confirm('Tens a certeza que queres apagar este veículo?')) return;
-      fetch(`/veiculos/${id}`, { method: 'DELETE' })
-        .then(r => { if (!r.ok) throw new Error(); })
-        .then(() => { carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo apagado!'); })
-        .catch(() => mostrarMsg('veiculoErro', 'Erro ao apagar veículo!'));
-    }
-
-    // ─────────────────────────────────────────────
-    // CATEGORIAS
-    // ─────────────────────────────────────────────
-    function carregarCategorias() {
-      fetch('/categorias')
-        .then(r => r.json())
-        .then(lista => {
-          document.getElementById('bodyCategorias').innerHTML = lista.map(c => `
-            <tr>
-              <td>#${c.id}</td>
-              <td>${c.nome}</td>
-              <td>${c.descricao || '—'}</td>
-              <td><div class="acoes">
-                <button class="btn-tbl-del" onclick="apagarCategoria(${c.id})">Apagar</button>
-              </div></td>
-            </tr>
-          `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Sem categorias.</td></tr>';
-        });
-    }
-
-    function abrirModalCategoria() {
-      document.getElementById('catNome').value = '';
-      document.getElementById('catDescricao').value = '';
-      document.getElementById('modalCategoriaErro').style.display = 'none';
-      document.getElementById('modalCategoria').classList.add('open');
-    }
-    function fecharModalCategoria() { document.getElementById('modalCategoria').classList.remove('open'); }
-
-    function guardarCategoria() {
-      const nome      = document.getElementById('catNome').value.trim();
-      const descricao = document.getElementById('catDescricao').value.trim();
-      if (!nome) {
-        document.getElementById('modalCategoriaErro').innerText = 'Nome é obrigatório!';
-        document.getElementById('modalCategoriaErro').style.display = 'block';
-        return;
-      }
-      fetch('/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, descricao }) })
-        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-        .then(() => { fecharModalCategoria(); carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria adicionada!'); })
-        .catch(() => { document.getElementById('modalCategoriaErro').innerText = 'Erro ao guardar!'; document.getElementById('modalCategoriaErro').style.display='block'; });
-    }
-
-    function apagarCategoria(id) {
-      if (!confirm('Apagar esta categoria?')) return;
-      fetch(`/categorias/${id}`, { method:'DELETE' })
-        .then(r => { if (!r.ok) throw new Error(); })
-        .then(() => { carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria apagada!'); })
-        .catch(() => mostrarMsg('categoriaErro', 'Erro ao apagar!'));
-    }
-
-    // ─────────────────────────────────────────────
-    // UTILIZADORES
-    // ─────────────────────────────────────────────
-    function carregarUtilizadores() {
-      fetch('/utilizadores')
-        .then(r => r.json())
-        .then(lista => {
-          document.getElementById('bodyUtilizadores').innerHTML = lista.map(u => `
-            <tr>
-              <td>${u.nome}</td>
-              <td>${u.email}</td>
-              <td><span class="badge-${u.cargo?.toLowerCase()}">${u.cargo}</span></td>
-              <td><div class="acoes">
-                <button class="btn-tbl-edit" onclick="abrirModalCargo(${u.id}, '${u.cargo}')">Editar Cargo</button>
-                <button class="btn-tbl-del"  onclick="apagarUtilizador(${u.id})">Remover</button>
-              </div></td>
-            </tr>
-          `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Sem utilizadores.</td></tr>';
-        });
-    }
-
-    function abrirModalCargo(id, cargo) {
-      document.getElementById('cargoUtilizadorId').value = id;
-      document.getElementById('novoCargo').value = cargo;
-      document.getElementById('modalCargo').classList.add('open');
-    }
-    function fecharModalCargo() { document.getElementById('modalCargo').classList.remove('open'); }
-
-    function guardarCargo() {
-      const id    = document.getElementById('cargoUtilizadorId').value;
-      const cargo = document.getElementById('novoCargo').value;
-      fetch(`/utilizadores/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
-        .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-        .then(() => { fecharModalCargo(); carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Cargo atualizado!'); })
-        .catch(() => mostrarMsg('utilizadorErro', 'Erro ao atualizar cargo!'));
-    }
-
-    function apagarUtilizador(id) {
-      if (!confirm('Tens a certeza que queres remover este utilizador?')) return;
-      fetch(`/utilizadores/${id}`, { method:'DELETE' })
-        .then(r => { if (!r.ok) throw new Error(); })
-        .then(() => { carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Utilizador removido!'); })
-        .catch(() => mostrarMsg('utilizadorErro', 'Erro ao remover!'));
-    }
-
-    // ─────────────────────────────────────────────
-    // UTILS
-    // ─────────────────────────────────────────────
-    function formatData(dt) {
-      if (!dt) return '—';
-      return new Date(dt).toLocaleDateString('pt-PT');
-    }
-
-    function mostrarMsg(id, msg) {
-      const el = document.getElementById(id);
-      el.innerText = msg;
-      el.style.display = 'block';
-      setTimeout(() => { el.style.display = 'none'; }, 3000);
-    }
-
-    // Carregar overview ao iniciar
+    // Carregar os gráficos ao iniciar a página
     carregarOverview();
   </script>
 

@@ -64,17 +64,18 @@
     <div class="sidebar" id="sidebar">
       <div class="sidebar-section">Menu</div>
       <a class="sidebar-link active" href="index.html">🚗 Veículos</a>
-      <div id="sidebarLogado" style="display:none;">
-        <a class="sidebar-link" href="dashboard.html">📋 Dashboard</a>
-      </div>
-      <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">
-        <a class="sidebar-link" href="perfil.html">👤 Perfil</a>
-        <div id="sidebarSair" class="sidebar-link danger" onclick="sair()" style="display:none;">🚪 Sair</div>
+      <div id="sidebarDashboard" style="display:none;">
+        <div class="sidebar-link" id="dashToggle" onclick="toggleDash()" style="display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;">
+          <span>📋 Dashboard</span>
+          <span id="dashArrow" style="font-size:11px; transition:transform 0.2s;">▾</span>
+        </div>
+        <div id="dashSubMenu" style="display:none; border-left:2px solid #3b5270; margin-left:18px; margin-top:2px;">
+          <!-- preenchido por JS consoante o cargo -->
+        </div>
       </div>
     </div>
 
     <div class="content">
-      <!-- FILTROS -->
       <div class="filters-bar">
         <div class="filter-group">
           <label>Tipo de Motor</label>
@@ -93,7 +94,6 @@
             <option value="AUTOMATICO">Automático</option>
           </select>
         </div>
-        <!-- ② Combustível esconde quando motor = ELETRICO -->
         <div class="filter-group" id="grupoCombustao">
           <label>Combustível</label>
           <select id="filtroCombustao">
@@ -129,7 +129,6 @@
     </div>
   </div>
 
-  <!-- POP-UP DETALHES VEICULO (ponto 14) -->
   <div class="modal-overlay" id="modalDetalhes">
     <div class="modal-box" style="max-width:520px;">
       <button class="modal-close" onclick="fecharDetalhes()">✕</button>
@@ -145,7 +144,6 @@
     </div>
   </div>
 
-  <!-- MODAL RESERVA -->
   <div class="modal-overlay" id="modalReserva">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharReserva()">✕</button>
@@ -155,7 +153,6 @@
       <div class="alert-sucesso" id="modalSucesso"></div>
       <div class="mb-3">
         <label class="form-label-custom">Data de levantamento</label>
-        <!-- ① min é preenchido pelo JS com a data de hoje -->
         <input type="datetime-local" class="form-control-custom" id="dataLevantamento" onchange="atualizarMinDevolucao()"/>
       </div>
       <div class="mb-3">
@@ -166,27 +163,53 @@
     </div>
   </div>
 
+  <script src="js/api.js"></script>
   <script>
     let todosVeiculos      = [];
     let veiculoSelecionado = null;
-    const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
+    const utilizadorLogado = JSON.parse(sessionStorage.getItem('utilizador'));
 
-    // ─── NAVBAR ───────────────────────────────
-    const navActions = document.getElementById('navActions');
-    if (utilizador) {
-      const isStaff = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
-      navActions.innerHTML = `
-        <span class="navbar-user">👤 ${utilizador.nome}</span>
-        ${isStaff ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
-        <button class="btn-danger-custom" onclick="sair()">Sair</button>`;
-      if (isStaff) document.getElementById('sidebarLogado').style.display = 'block';
-      document.getElementById('sidebarSair').style.display = 'block';
-    } else {
-      navActions.innerHTML = `
-        <a href="login.html"    class="btn-outline-custom">Login</a>
-        <a href="register.html" class="btn-orange-custom">Registar</a>`;
+    // Atualiza sidebar consoante o cargo
+    if (utilizadorLogado) {
+      const isAdmin      = utilizadorLogado.cargo === 'ADMIN';
+      const isFuncionario = utilizadorLogado.cargo === 'FUNCIONARIO';
+      const isStaff      = isAdmin || isFuncionario;
+
+      if (isStaff) {
+        document.getElementById('sidebarDashboard').style.display = 'block';
+
+        const dashUrl  = isAdmin ? 'admin_dashboard.html' : 'dashboard.html';
+
+        // Sub-abas consoante cargo
+        const abas = isAdmin
+          ? [
+              { icon: '📊', label: 'Overview',      secao: 'overview'      },
+              { icon: '📋', label: 'Alugueres',     secao: 'alugueres'     },
+              { icon: '🚗', label: 'Veículos',      secao: 'veiculos'      },
+              { icon: '🗂️', label: 'Categorias',    secao: 'categorias'    },
+              { icon: '👥', label: 'Utilizadores',  secao: 'utilizadores'  },
+            ]
+          : [
+              { icon: '📋', label: 'Alugueres',     secao: 'alugueres'     },
+              { icon: '🚗', label: 'Veículos',      secao: 'veiculos'      },
+              { icon: '🗂️', label: 'Categorias',    secao: 'categorias'    },
+            ];
+
+        const sub = document.getElementById('dashSubMenu');
+        sub.innerHTML = abas.map(a =>
+          `<a class="sidebar-link" style="font-size:13px; padding:7px 12px;"
+              href="${dashUrl}?s=${a.secao}">${a.icon} ${a.label}</a>`
+        ).join('');
+      }
     }
-    function sair() { sessionStorage.removeItem('utilizador'); window.location.href = 'login.html'; }
+
+    function toggleDash() {
+      const sub   = document.getElementById('dashSubMenu');
+      const arrow = document.getElementById('dashArrow');
+      const open  = sub.style.display !== 'none';
+      sub.style.display   = open ? 'none' : 'block';
+      arrow.style.transform = open ? '' : 'rotate(-90deg)';
+    }
 
     // ─── CATEGORIAS ──────────────────────────
     fetch('/categorias').then(r => r.json()).then(cats => {
@@ -231,7 +254,6 @@
     }
 
     // ─── FILTROS ─────────────────────────────
-    // ② Esconder combustível quando motor é elétrico
     function onMotorChange() {
       const motor = document.getElementById('filtroMotor').value;
       const grupo = document.getElementById('grupoCombustao');
@@ -263,7 +285,7 @@
       renderVeiculos(todosVeiculos);
     }
 
-    // ─── POP-UP DETALHES (ponto 14) ──────────
+    // ─── POP-UP DETALHES ─────────────────────
     function abrirDetalhes(v) {
       const img = document.getElementById('popupImagem');
       img.innerHTML = v.imagemPath ? `<img src='/\${v.imagemPath}'' onerror="this.parentElement.innerHTML='🚗'"/>` : '🚗';
@@ -272,7 +294,6 @@
       document.getElementById('popupBadge').innerHTML   = `<span class="${badgeStatus(v.status)}">${v.status}</span>`;
       document.getElementById('popupPreco').textContent = `${v.precoDiario}€ / dia`;
 
-      // Badges extras
       let badges = `<span style="background:#dbeafe;color:#1e40af;font-size:12px;padding:4px 10px;border-radius:20px;">${v.tipoCaixa || '—'}</span>`;
       if (v.tipoMotor) badges += `<span style="background:#f1f5f9;color:#475569;font-size:12px;padding:4px 10px;border-radius:20px;">${v.tipoMotor}</span>`;
       if (v.co2) {
@@ -281,7 +302,6 @@
       }
       document.getElementById('popupBadges').innerHTML = badges;
 
-      // Grid de detalhes
       const campos = [
         ['📅 Ano',        v.ano        || '—'],
         ['⛽ Combustível', v.tipoCombustao || (v.tipoMotor === 'ELETRICO' ? 'Elétrico' : '—')],
@@ -293,7 +313,6 @@
       document.getElementById('popupGrid').innerHTML = campos.map(([l, val]) => `
         <div class="popup-field"><div class="popup-field-label">${l}</div><div class="popup-field-value">${val}</div></div>`).join('');
 
-      // Botão reservar
       const btn = document.getElementById('popupBtnReservar');
       if (v.status === 'DISPONIVEL') {
         btn.disabled = false; btn.style.opacity = '1';
@@ -316,12 +335,11 @@
 
     // ─── MODAL RESERVA ───────────────────────
     function abrirReserva(veiculo) {
-      if (!utilizador) { window.location.href = 'login.html'; return; }
+      if (!utilizadorLogado) { window.location.href = 'login.html'; return; }
       veiculoSelecionado = veiculo;
       document.getElementById('modalVeiculoNome').textContent = `${veiculo.marca} ${veiculo.modelo}`;
       document.getElementById('modalErro').style.display = document.getElementById('modalSucesso').style.display = 'none';
 
-      // ① Bloquear datas anteriores a hoje
       const agora = new Date();
       agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
       const minStr = agora.toISOString().slice(0, 16);
@@ -333,7 +351,6 @@
       document.getElementById('modalReserva').classList.add('open');
     }
 
-    // ① Quando muda levantamento, devolução mínima fica depois
     function atualizarMinDevolucao() {
       const lev = document.getElementById('dataLevantamento').value;
       if (lev) document.getElementById('dataDevolucao').min = lev;
@@ -352,7 +369,7 @@
 
       const params = new URLSearchParams({
         idVeiculo: veiculoSelecionado.id,
-        idCliente: utilizador.id,
+        idCliente: utilizadorLogado.id,
         dataLevantamento: lev,
         dataDevolucao:    dev
       });

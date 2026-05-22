@@ -4,14 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import model.Aluguer;
 import model.Utilizador;
@@ -31,47 +26,61 @@ public class AluguerController {
     @Autowired
     private UtilizadorService utilizadorService;
 
-    // GET /alugueres — listar todos
     @GetMapping
     public List<Aluguer> listarTodos() {
         return aluguerService.listarTodos();
     }
 
-    // GET /alugueres/{id} — buscar por id
     @GetMapping("/{id}")
     public ResponseEntity<Aluguer> buscarPorId(@PathVariable long id) {
         return ResponseEntity.ok(aluguerService.buscarPorId(id));
     }
 
-    // POST /alugueres — criar reserva
+    // POST /alugueres — Criar Reserva (Ajustado com DateTimeFormat para o HTML)
     @PostMapping
     public ResponseEntity<Aluguer> criarReserva(
             @RequestParam Long idVeiculo,
             @RequestParam Long idCliente,
-            @RequestParam String dataLevantamento,
-            @RequestParam String dataDevolucao) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataLevantamento,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime dataDevolucao) {
 
         Veiculo veiculo = veiculoService.buscarId(idVeiculo);
         Utilizador cliente = utilizadorService.buscarId(idCliente);
-        LocalDateTime levantamento = LocalDateTime.parse(dataLevantamento);
-        LocalDateTime devolucao = LocalDateTime.parse(dataDevolucao);
 
-        return ResponseEntity.ok(aluguerService.criarReserva(veiculo, cliente, levantamento, devolucao));
+        return ResponseEntity.ok(aluguerService.criarReserva(veiculo, cliente, dataLevantamento, dataDevolucao));
     }
 
-    // PUT /alugueres/{id}/confirmar — confirmar levantamento
+    // PUT /alugueres/{id}/confirmar — Passa de PENDENTE para LEVANTAR
     @PutMapping("/{id}/confirmar")
     public ResponseEntity<Aluguer> confirmar(@PathVariable long id) {
         return ResponseEntity.ok(aluguerService.confirmarLevantamento(id));
     }
 
-    // PUT /alugueres/{id}/devolver — devolver
+    // PUT /alugueres/{id}/levantar — Passa de LEVANTAR para ATIVA
+    @PutMapping("/{id}/levantar")
+    public ResponseEntity<Aluguer> levantar(@PathVariable long id) {
+        return ResponseEntity.ok(aluguerService.registarLevantamento(id));
+    }
+
+    // PUT /alugueres/{id}/devolver — Passa de ATIVA para DEVOLVER
     @PutMapping("/{id}/devolver")
     public ResponseEntity<Aluguer> devolver(@PathVariable long id) {
         return ResponseEntity.ok(aluguerService.pedirDevolucao(id));
     }
 
-    // PUT /alugueres/{id}/cancelar — cancelar
+    // PUT /alugueres/{id}/manutencao — Passa de DEVOLVER para MANUTENCAO
+    @PutMapping("/{id}/manutencao")
+    public ResponseEntity<Aluguer> enviarParaManutencao(@PathVariable long id) {
+        return ResponseEntity.ok(aluguerService.enviarParaManutencao(id));
+    }
+
+    // PUT /alugueres/{id}/concluir — Passa de DEVOLVER ou MANUTENCAO para CONCLUIDA
+    @PutMapping("/{id}/concluir")
+    public ResponseEntity<Aluguer> concluir(@PathVariable long id) {
+        return ResponseEntity.ok(aluguerService.concluir(id));
+    }
+
+    // PUT /alugueres/{id}/cancelar — Cancelar reserva
     @PutMapping("/{id}/cancelar")
     public ResponseEntity<Aluguer> cancelar(@PathVariable long id) {
         return ResponseEntity.ok(aluguerService.cancelar(id));

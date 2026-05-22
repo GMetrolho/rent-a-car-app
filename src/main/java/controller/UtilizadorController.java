@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,5 +54,20 @@ public class UtilizadorController {
     public ResponseEntity<Void> apagar(@PathVariable long id) {
         utilizadorService.apagar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Utilizador> atualizarCargo(@PathVariable long id, @RequestBody Map<String, String> body) {
+        String novoCargoStr = body.get("cargo");
+        if (novoCargoStr == null || novoCargoStr.isBlank()) {
+            throw new RuntimeException("O cargo é obrigatório!");
+        }
+
+        try {
+            enums.Cargo cargo = enums.Cargo.valueOf(novoCargoStr.toUpperCase());
+            return ResponseEntity.ok(utilizadorService.atualizarCargo(id, cargo));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Cargo inválido!");
+        }
     }
 }

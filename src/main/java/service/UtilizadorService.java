@@ -25,6 +25,8 @@ public class UtilizadorService {
             throw new RuntimeException("Email é obrigatório!");
         if (utilizador.getPassword() == null || utilizador.getPassword().isBlank())
             throw new RuntimeException("Password é obrigatória!");
+        if (utilizador.getPassword().length() < 8)
+            throw new RuntimeException("Password demasiado curta. Mínimo 8 caracteres!");
         if (utilizador.getTipoConta() == null)
             throw new RuntimeException("Tipo de conta é obrigatório!");
 
@@ -48,8 +50,6 @@ public class UtilizadorService {
             throw new RuntimeException("Email é obrigatório!");
         if (password == null || password.isBlank())
             throw new RuntimeException("Password é obrigatória!");
-        if (password.length() < 8)
-            throw new RuntimeException("Password curta. Mínimo 8 caracteres!");
 
         Utilizador utilizador = utilizadorRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("Email não encontrado!"));
@@ -77,9 +77,15 @@ public class UtilizadorService {
             .orElseThrow(() -> new RuntimeException("Email não encontrado!"));
     }
 
+    public Utilizador atualizarCargo(long id, enums.Cargo novoCargo) {
+        Utilizador utilizador = buscarId(id);
+        utilizador.setCargo(novoCargo);
+        return utilizadorRepository.save(utilizador);
+    }
+
     public void apagar(long id) {
         if (!utilizadorRepository.existsById(id))
             throw new RuntimeException("Utilizador não encontrado!");
         utilizadorRepository.deleteById(id);
-    }
+        }
 }

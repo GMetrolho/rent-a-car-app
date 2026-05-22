@@ -132,8 +132,7 @@
         <a class="sidebar-link" href="dashboard.html">📋 Dashboard</a>
       </div>
       <div style="margin-top:24px; border-top:1px solid #2d3f55; padding-top:16px;">
-        <a class="sidebar-link active" href="perfil.html">👤 Perfil</a>
-        <div id="sidebarSair" class="sidebar-link danger" onclick="sair()" style="display:none;">🚪 Sair</div>
+        <a class="sidebar-link" href="index.html">🏠 Página inicial</a>
       </div>
     </div>
 
@@ -239,10 +238,8 @@
     navActions.innerHTML = `
       <span class="navbar-user">👤 ${utilizador.nome}</span>
       ${acess ? '<a href="dashboard.html" class="btn-outline-custom">Dashboard</a>' : ''}
-      <button class="btn-danger-custom" onclick="sair()">Sair</button>
+      <button class="btn-danger-custom" onclick="sair()">Terminar Sessão</button>
     `;
-    if (acess) document.getElementById('sidebarLogado').style.display = 'block';
-    document.getElementById('sidebarSair').style.display = 'block';
 
     // PREENCHER PERFIL
     function preencherPerfil(u) {
