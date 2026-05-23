@@ -104,7 +104,7 @@ function abrirModalVeiculo(v) {
   fetch('/categorias').then(r => r.json()).then(cats => {
     categorias = cats;
     const sel = document.getElementById('vCategoria');
-    if (sel) sel.innerHTML = cats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+    if (sel) sel.innerHTML = '<option value="">Sem categoria</option>' + cats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
   });
 
   if (v) {
@@ -151,6 +151,16 @@ function guardarVeiculo() {
 
   fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     .then(r => { if (!r.ok) return r.text().then(m => { throw new Error(m); }); return r.json(); })
+    .then(veiculo => {
+      // Upload de imagem se foi selecionada
+      const ficheiro = document.getElementById('vImagem')?.files[0];
+      if (ficheiro) {
+        const formData = new FormData();
+        formData.append('ficheiro', ficheiro);
+        return fetch(`/veiculos/${veiculo.id}/imagem`, { method: 'POST', body: formData })
+          .then(r => { if (!r.ok) throw new Error('Veículo guardado mas erro no upload da imagem!'); });
+      }
+    })
     .then(() => { fecharModalVeiculo(); carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo guardado!'); })
     .catch(err => { document.getElementById('modalVeiculoErro').innerText = err.message; document.getElementById('modalVeiculoErro').style.display = 'block'; });
 }

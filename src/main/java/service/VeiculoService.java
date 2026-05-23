@@ -1,9 +1,11 @@
 package service;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import enums.Status;
 import enums.Tipo_Caixa;
@@ -82,6 +84,19 @@ public class VeiculoService {
         if (!veiculoRepository.existsById(id))
             throw new RuntimeException("Veículo não encontrado!");
         veiculoRepository.deleteById(id);
+    }
+
+    public String guardarImagem(long id, MultipartFile ficheiro) throws IOException {
+        Veiculo veiculo = buscarId(id);
+
+        String nomeImagem = veiculo.getMarca().toLowerCase() + "_" +
+                            veiculo.getModelo().toLowerCase().replace(" ", "_") + ".png";
+
+        java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/static/img/", nomeImagem);
+        java.nio.file.Files.createDirectories(path.getParent());
+        java.nio.file.Files.write(path, ficheiro.getBytes());
+
+        return nomeImagem;
     }
 
 

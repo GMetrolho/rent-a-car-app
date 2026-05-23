@@ -1,5 +1,6 @@
 package controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +14,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import enums.Status;
 import model.Veiculo;
 import service.VeiculoService;
+
 
 @RestController
 @RequestMapping("/veiculos")
@@ -47,6 +50,18 @@ public class VeiculoController {
     @PostMapping
     public ResponseEntity<Veiculo> adicionar(@RequestBody Veiculo veiculo) {
         return ResponseEntity.ok(veiculoService.adicionar(veiculo));
+    }
+
+    // POST /veiculos/{id}/imagem — upload de imagem
+    @PostMapping("/{id}/imagem")
+    public ResponseEntity<String> uploadImagem(
+            @PathVariable long id,
+            @RequestParam("ficheiro") MultipartFile ficheiro) {
+        try {
+            return ResponseEntity.ok(veiculoService.guardarImagem(id, ficheiro));
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body("Erro ao guardar imagem: " + e.getMessage());
+        }
     }
 
     // PUT /veiculos/{id}/status — atualizar status

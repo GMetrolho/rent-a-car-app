@@ -177,6 +177,15 @@
         <div class="col-6"><label class="form-label-custom">Categoria</label>
           <select class="form-control-custom" id="vCategoria"></select>
         </div>
+        <div class="col-12">
+          <label class="form-label-custom">Imagem do Veículo (opcional)</label>
+          <label for="vImagem" style="display:flex; align-items:center; gap:10px; cursor:pointer; background:#f8fafc; border:1.5px dashed var(--border); border-radius:8px; padding:12px 16px; transition:border-color 0.2s;">
+            <span style="font-size:20px;">🖼️</span>
+            <span id="vImagemLabel" style="font-size:13px; color:var(--text-muted);">Clica para escolher uma imagem...</span>
+          </label>
+          <input type="file" id="vImagem" accept="image/*" style="display:none;"
+            onchange="document.getElementById('vImagemLabel').textContent = this.files[0]?.name || 'Clica para escolher uma imagem...'"/>
+        </div>
       </div>
       <button class="btn-orange-custom w-100 mt-3" onclick="guardarVeiculo()">Guardar</button>
     </div>

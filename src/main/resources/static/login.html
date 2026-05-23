@@ -53,8 +53,14 @@
   <script>
     const u = sessionStorage.getItem('utilizador');
     if (u) {
-      const cargo = JSON.parse(u).cargo;
-      window.location.href = (cargo === 'ADMIN' || cargo === 'FUNCIONARIO') ? 'dashboard.html' : 'index.html';
+        const cargo = JSON.parse(u).cargo;
+      if (cargo === 'ADMIN') {
+        window.location.href = 'admin_dashboard.html';
+      } else if (cargo === 'FUNCIONARIO') {
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'index.html';
+      }
     }
 
     function fazerLogin() {
