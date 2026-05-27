@@ -144,34 +144,62 @@
       <input type="hidden" id="veiculoId"/>
       <div class="alert-erro" id="modalVeiculoErro"></div>
       <div class="row g-3">
-        <div class="col-6"><label class="form-label-custom">Matrícula</label><input class="form-control-custom" id="vMatricula" placeholder="AA-00-BB"/></div>
-        <div class="col-6"><label class="form-label-custom">Marca</label><input class="form-control-custom" id="vMarca"/></div>
-        <div class="col-6"><label class="form-label-custom">Modelo</label><input class="form-control-custom" id="vModelo"/></div>
-        <div class="col-6"><label class="form-label-custom">Ano</label><input class="form-control-custom" type="number" id="vAno" placeholder="2023"/></div>
-        <div class="col-6"><label class="form-label-custom">Preço/dia (€)</label><input class="form-control-custom" type="number" id="vPreco" placeholder="50"/></div>
-        <div class="col-6"><label class="form-label-custom">Cilindrada</label><input class="form-control-custom" type="number" id="vCilindrada"></div>
-        <div class="col-6"><label class="form-label-custom">CO2</label><input class="form-control-custom" type="number" id="vCO2"></div>
-        <div class="col-6"><label class="form-label-custom">Potência</label><input class="form-control-custom" type="number" id="vPotencia"></div>
-        <div class="col-6"><label class="form-label-custom">Status</label>
+        <div class="col-6">
+          <label class="form-label-custom">Matrícula</label>
+          <input class="form-control-custom" id="vMatricula" placeholder="AA-00-BB"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Marca</label>
+          <input class="form-control-custom" id="vMarca"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Modelo</label>
+          <input class="form-control-custom" id="vModelo"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Ano</label>
+          <input class="form-control-custom" type="number" id="vAno" placeholder="2023"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Preço/dia (€)</label>
+          <input class="form-control-custom" type="number" id="vPreco" placeholder="50"/>
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Cilindrada</label>
+          <input class="form-control-custom" type="number" id="vCilindrada">
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">CO2</label>
+          <input class="form-control-custom" type="number" id="vCO2">
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Potência</label>
+          <input class="form-control-custom" type="number" id="vPotencia">
+        </div>
+        <div class="col-6">
+          <label class="form-label-custom">Status</label>
           <select class="form-control-custom" id="vStatus">
             <option value="DISPONIVEL">Disponível</option>
             <option value="MANUTENCAO">Manutenção</option>
           </select>
         </div>
-        <div class="col-6"><label class="form-label-custom">Tipo de Motor</label>
-          <select class="form-control-custom" id="vMotor">
+        <div class="col-6">
+          <label class="form-label-custom">Tipo de Motor</label>
+          <select class="form-control-custom" id="vMotor" onchange="onModalMotorChange()">
             <option value="COMBUSTAO">Combustão</option>
             <option value="HIBRIDO">Híbrido</option>
             <option value="ELETRICO">Elétrico</option>
           </select>
         </div>
-        <div class="col-6"><label class="form-label-custom">Caixa</label>
+        <div class="col-6" id="colunaCaixa">
+          <label class="form-label-custom">Caixa</label>
           <select class="form-control-custom" id="vCaixa">
             <option value="MANUAL">Manual</option>
             <option value="AUTOMATICO">Automático</option>
           </select>
         </div>
-        <div class="col-6"><label class="form-label-custom">Combustível</label>
+        <div class="col-6" id="colunaCombustao">
+          <label class="form-label-custom">Combustível</label>
           <select class="form-control-custom" id="vCombustao">
             <option value="GASOLINA">Gasolina</option>
             <option value="GASOLEO">Gasóleo</option>

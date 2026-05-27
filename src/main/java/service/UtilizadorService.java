@@ -96,6 +96,15 @@ public class UtilizadorService {
         utilizadorExistente.setTipoConta(dadosAtualizados.getTipoConta());
         }
 
+        if (dadosAtualizados.getTelefone().length() != 9 ) {
+            throw new RuntimeException("O número tem de ser 9 digitos ou tem de começar por 9");
+        }
+
+        String telefone = dadosAtualizados.getTelefone();
+        if (telefone == null || !telefone.startsWith("9") || telefone.length() != 9) {
+            throw new RuntimeException("Número de telefone inválido.");
+        }
+
         if (utilizadorExistente.getTipoConta() == Tipo_Conta.EMPRESA) {
             if (dadosAtualizados.getNif() == null || dadosAtualizados.getNif().isBlank()) {
                 throw new RuntimeException("NIF é obrigatório para contas de empresa!");

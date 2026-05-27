@@ -98,7 +98,6 @@ function carregarVeiculos() {
       `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Sem veículos.</td></tr>';
     });
 }
-
 function abrirModalVeiculo(v) {
   document.getElementById('modalVeiculoErro').style.display = 'none';
   fetch('/categorias').then(r => r.json()).then(cats => {
@@ -115,19 +114,44 @@ function abrirModalVeiculo(v) {
     document.getElementById('vModelo').value     = v.modelo;
     document.getElementById('vAno').value        = v.ano;
     document.getElementById('vPreco').value      = v.precoDiario;
-    document.getElementById('vCilindrada').value = v.cilindrada;
-    document.getElementById('vCO2').value = v.co2;
-    document.getElementById('vPotencia').value = v.potencia;
+    document.getElementById('vCilindrada').value = v.cilindrada || '';
+    document.getElementById('vCO2').value        = v.co2 || '';
+    document.getElementById('vPotencia').value   = v.potencia || '';
     document.getElementById('vStatus').value     = v.status;
-    document.getElementById('vMotor').value      = v.tipoMotor;
-    document.getElementById('vCaixa').value      = v.tipoCaixa;
-    document.getElementById('vCombustao').value  = v.tipoCombustao;
+    document.getElementById('vMotor').value      = v.tipoMotor || 'COMBUSTAO';
+    document.getElementById('vCaixa').value      = v.tipoCaixa || 'MANUAL';
+    document.getElementById('vCombustao').value  = v.tipoCombustao || 'GASOLINA';
     setTimeout(() => { if (v.categoria && document.getElementById('vCategoria')) document.getElementById('vCategoria').value = v.categoria.id; }, 300);
   } else {
     document.getElementById('modalVeiculoTitulo').textContent = 'Adicionar Veículo';
     document.getElementById('veiculoId').value = '';
-    ['vMatricula','vMarca','vModelo','vAno','vPreco'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).value = ''; });
+
+    // Limpa os inputs de texto
+    ['vMatricula','vMarca','vModelo','vAno','vPreco','vCilindrada','vCO2','vPotencia'].forEach(id => {
+      if(document.getElementById(id)) document.getElementById(id).value = '';
+    });
+
+    // Força o motor a começar em Combustão
+    document.getElementById('vMotor').value = 'COMBUSTAO';
+
+    // RESET aos estados e opções dos selects (para o caso de terem ficado bloqueados do clique anterior)
+    const selectCaixa = document.getElementById('vCaixa');
+    selectCaixa.disabled = false;
+    selectCaixa.value = 'MANUAL';
+
+    const selectCombustao = document.getElementById('vCombustao');
+    selectCombustao.disabled = false;
+    selectCombustao.innerHTML = `
+      <option value="GASOLINA">Gasolina</option>
+      <option value="GASOLEO">Gasóleo</option>
+    `;
   }
+
+  // Executa logo a verificação para o caso de estares a EDITAR um elétrico já existente
+  setTimeout(() => {
+    onModalMotorChange();
+  }, 50);
+
   document.getElementById('modalVeiculo').classList.add('open');
 }
 
@@ -136,19 +160,26 @@ function fecharModalVeiculo() { document.getElementById('modalVeiculo').classLis
 function guardarVeiculo() {
   const id = document.getElementById('veiculoId').value;
   const catId = document.getElementById('vCategoria').value;
+
+  // Captura o tipo de motor primeiro
+  const tipoMotor = document.getElementById('vMotor').value;
+
   const body = {
     matricula:     document.getElementById('vMatricula').value,
     marca:         document.getElementById('vMarca').value,
     modelo:        document.getElementById('vModelo').value,
     ano:           parseInt(document.getElementById('vAno').value),
     precoDiario:   parseFloat(document.getElementById('vPreco').value),
-    cilindrada:    parseInt(document.getElementById('vCilindrada').value),
-    co2:           parseInt(document.getElementById('vCO2').value),
-    potencia:      parseInt(document.getElementById('vPotencia').value),
+    cilindrada:    parseInt(document.getElementById('vCilindrada').value) || 0,
+    co2:           parseInt(document.getElementById('vCO2').value) || 0,
+    potencia:      parseInt(document.getElementById('vPotencia').value) || 0,
     status:        document.getElementById('vStatus').value,
-    tipoMotor:     document.getElementById('vMotor').value,
+    tipoMotor:     tipoMotor,
     tipoCaixa:     document.getElementById('vCaixa').value,
-    tipoCombustao: document.getElementById('vCombustao').value,
+
+    // 🔥 CORREÇÃO AQUI: Se for elétrico envia null, senão envia o valor do select
+    tipoCombustao: tipoMotor === 'ELETRICO' ? null : document.getElementById('vCombustao').value,
+
     categoria:     catId ? { id: parseInt(catId) } : null
   };
 
@@ -177,6 +208,31 @@ function apagarVeiculo(id) {
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo apagado!'); })
     .catch(() => mostrarMsg('veiculoErro', 'Erro ao apagar veículo!'));
+}
+
+function onModalMotorChange() {
+  const motor = document.getElementById('vMotor').value;
+  const selectCaixa = document.getElementById('vCaixa');
+  const selectCombustao = document.getElementById('vCombustao');
+
+  if (motor === 'ELETRICO') {
+    // 1. Bloqueia a caixa em AUTOMATICO
+    selectCaixa.value = 'AUTOMATICO';
+    selectCaixa.disabled = true; // O utilizador já não consegue clicar nem mudar
+
+    // 2. Limpa as opções de Gasolina/Gasóleo e cria uma opção única "Não aplicável"
+    selectCombustao.innerHTML = '<option value="" selected>Não aplicável (Elétrico)</option>';
+    selectCombustao.disabled = true; // Bloqueia o campo
+  } else {
+    // Se for COMBUSTAO ou HIBRIDO, devolvemos o controlo e as opções normais
+    selectCaixa.disabled = false;
+
+    selectCombustao.disabled = false;
+    selectCombustao.innerHTML = `
+      <option value="GASOLINA">Gasolina</option>
+      <option value="GASOLEO">Gasóleo</option>
+    `;
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -266,7 +322,7 @@ function fecharModalCargo() { document.getElementById('modalCargo').classList.re
 function guardarCargo() {
   const id    = document.getElementById('cargoUtilizadorId').value;
   const cargo = document.getElementById('novoCargo').value;
-  fetch(`/utilizadores/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
+  fetch(`/utilizadores/${id}/cargo`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => { fecharModalCargo(); carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Cargo atualizado!'); })
     .catch(() => mostrarMsg('utilizadorErro', 'Erro ao atualizar cargo!'));

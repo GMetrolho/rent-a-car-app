@@ -55,8 +55,8 @@
 
       <div class="row g-3">
         <div class="col-12">
-          <label class="form-label-custom">Nome completo</label>
-          <input type="text" class="form-control-custom" id="nome" placeholder="João Silva"/>
+          <label class="form-label-custom" id="labelNome">Nome completo</label>
+          <input type="text" class="form-control-custom" id="inputNome" placeholder="João Silva"/>
         </div>
         <div class="col-12">
           <label class="form-label-custom">Email</label>
@@ -64,13 +64,13 @@
         </div>
         <div class="col-12">
           <label class="form-label-custom">Telefone</label>
-          <input type="tel" class="form-control-custom" id="telefone" placeholder="912 345 678"/>
+          <input type="tel" class="form-control-custom" id="telefone" placeholder="912 345 678" maxlength="9"/>
         </div>
 
         <!-- NIF — obrigatório empresa, opcional pessoal -->
         <div class="col-12" id="campoNif">
-          <label class="form-label-custom" id="labelNif">NIF <span id="nifOpcional" style="color:var(--text-muted);font-weight:400;">(opcional)</span></label>
-          <input type="text" class="form-control-custom" id="nif" placeholder="123456789"/>
+          <label class="form-label-custom" id="labelNif">NIF<span id="nifOpcional" style="color:var(--text-muted);font-weight:400;">(opcional)</span></label>
+          <input type="text" class="form-control-custom" id="nif" placeholder="123456789" maxlength="9"/>
         </div>
 
         <div class="col-12">
@@ -101,10 +101,14 @@
 
       // NIF obrigatório só para empresa
       if (tipo === 'EMPRESA') {
+        labelNome.textContent = 'Nome da Empresa';
+        inputNome.placeholder = 'Ex: AutoRent Portugal Lda';
         document.getElementById('nifOpcional').style.display = 'none';
         document.getElementById('nif').placeholder = 'NIF obrigatório';
         document.getElementById('nif').required = true;
       } else {
+        labelNome.textContent = 'Nome completo';
+        inputNome.placeholder = 'João Silva';
         document.getElementById('nifOpcional').style.display = 'inline';
         document.getElementById('nif').placeholder = '123456789';
         document.getElementById('nif').required = false;
@@ -112,7 +116,7 @@
     }
 
     function registar() {
-      const nome      = document.getElementById('nome').value.trim();
+      const nome      = document.getElementById('inputNome').value.trim();
       const email     = document.getElementById('email').value.trim();
       const telefone  = document.getElementById('telefone').value.trim();
       const nif       = document.getElementById('nif').value.trim();

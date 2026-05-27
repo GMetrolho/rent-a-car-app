@@ -86,7 +86,7 @@
             <option value="ELETRICO">Elétrico</option>
           </select>
         </div>
-        <div class="filter-group">
+        <div class="filter-group" id="grupoCaixa">
           <label>Caixa</label>
           <select id="filtroCaixa">
             <option value="">Todas</option>
@@ -256,12 +256,20 @@
     // ─── FILTROS ─────────────────────────────
     function onMotorChange() {
       const motor = document.getElementById('filtroMotor').value;
-      const grupo = document.getElementById('grupoCombustao');
+      const grupoCombustao = document.getElementById('grupoCombustao');
+      const grupoCaixa = document.getElementById('grupoCaixa');
+      const filtroCaixa = document.getElementById('filtroCaixa');
+
       if (motor === 'ELETRICO') {
-        grupo.style.display = 'none';
+        grupoCombustao.style.display = 'none';
         document.getElementById('filtroCombustao').value = '';
+        filtroCaixa.value = 'AUTOMATICO'
+        grupoCaixa.style.display = 'none';
       } else {
-        grupo.style.display = 'flex';
+        grupoCombustao.style.display = 'flex';
+        grupoCaixa.style.display = 'flex';
+
+
       }
     }
 
@@ -282,6 +290,7 @@
     function limparFiltros() {
       ['filtroMotor','filtroCaixa','filtroCombustao','filtroCategoria','filtroStatus'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('grupoCombustao').style.display = 'flex';
+      document.getElementById('grupoCaixa').style.display = 'flex';
       renderVeiculos(todosVeiculos);
     }
 
