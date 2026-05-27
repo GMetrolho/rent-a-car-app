@@ -72,11 +72,46 @@ public class VeiculoService {
         return veiculoRepository.findByTipoMotor(tipoMotor);
     }
 
+
     // Atualizar status
     public Veiculo atualizarStatus(long id, Status novoStatus) {
         Veiculo veiculo = buscarId(id);
         veiculo.setStatus(novoStatus);
         return veiculoRepository.save(veiculo);
+    }
+
+    public Veiculo atualizar(long id, Veiculo dadosAtualizados) {
+    Veiculo veiculoExistente = buscarId(id);
+
+    // 2. Validações básicas idênticas às do adicionar
+    if (dadosAtualizados.getMatricula() == null || dadosAtualizados.getMatricula().isBlank())
+        throw new RuntimeException("Matrícula é obrigatória!");
+    if (dadosAtualizados.getMarca() == null || dadosAtualizados.getMarca().isBlank())
+        throw new RuntimeException("Marca é obrigatória!");
+    if (dadosAtualizados.getModelo() == null || dadosAtualizados.getModelo().isBlank())
+        throw new RuntimeException("Modelo é obrigatório!");
+    if (dadosAtualizados.getPrecoDiario() <= 0)
+        throw new RuntimeException("Preço diário tem de ser positivo!");
+
+    // 3. Atualiza os dados do veículo existente com os novos dados vindos do formulário
+    veiculoExistente.setMatricula(dadosAtualizados.getMatricula());
+    veiculoExistente.setMarca(dadosAtualizados.getMarca());
+    veiculoExistente.setModelo(dadosAtualizados.getModelo());
+    veiculoExistente.setAno(dadosAtualizados.getAno());
+    veiculoExistente.setPrecoDiario(dadosAtualizados.getPrecoDiario());
+    veiculoExistente.setStatus(dadosAtualizados.getStatus());
+    veiculoExistente.setTipoMotor(dadosAtualizados.getTipoMotor());
+    veiculoExistente.setTipoCaixa(dadosAtualizados.getTipoCaixa());
+    veiculoExistente.setTipoCombustao(dadosAtualizados.getTipoCombustao());
+    veiculoExistente.setCategoria(dadosAtualizados.getCategoria());
+
+    // Atualiza também os novos campos técnicos (Cilindrada, CO2, Potência)
+    veiculoExistente.setCilindrada(dadosAtualizados.getCilindrada());
+    veiculoExistente.setCo2(dadosAtualizados.getCo2());
+    veiculoExistente.setPotencia(dadosAtualizados.getPotencia());
+
+    // 4. Guarda o objeto atualizado (o JPA vai fazer o UPDATE por causa do ID fixado)
+    return veiculoRepository.save(veiculoExistente);
     }
 
     // Apagar

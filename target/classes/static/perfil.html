@@ -6,6 +6,7 @@
   <title>AutoRent — Perfil</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     .page-layout { display:flex; flex:1; }
 
@@ -165,8 +166,16 @@
               <span id="verEmail">—</span>
             </div>
             <div class="info-field">
+              <label>Telefone</label>
+              <span id="verTelefone">—</span>
+            </div>
+            <div class="info-field">
+              <label>NIF</label>
+              <span id="verNif">—</span>
+            </div>
+            <div class="info-field">
               <label>Tipo de Conta</label>
-              <span id="verCargo">—</span>
+              <span id="verTipoConta">—</span>
             </div>
             <div class="info-field">
               <label>ID de Utilizador</label>
@@ -189,6 +198,14 @@
             <div>
               <label class="form-label-custom">Email</label>
               <input type="email" class="form-control-custom" id="editEmail"/>
+            </div>
+            <div>
+              <label class="form-label-custom">Telemóvel</label>
+              <input type="text" class="form-control-custom" id="editTelefone" placeholder="9xxxxxxxx">
+            </div>
+            <div>
+              <label class="form-label-custom">NIF</label>
+              <input type="text" class="form-control-custom" id="editNif" maxlength="9" placeholder="123456789">
             </div>
           </div>
           <div class="form-row" style="margin-bottom:20px;">
@@ -220,9 +237,19 @@
         <p>Ao sair terás de fazer login novamente para aceder à tua conta.</p>
         <button class="btn-sair" onclick="sair()">🚪 Sair da Conta</button>
       </div>
-
     </div>
   </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div id="popupSucesso" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" style="font-size: 13px; font-weight: 500;">
+        🎉 Dados atualizados com sucesso!
+      </div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
 
   <script>
     const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
@@ -253,17 +280,43 @@
 
       document.getElementById('verNome').textContent  = u.nome;
       document.getElementById('verEmail').textContent = u.email;
-      document.getElementById('verCargo').textContent = u.cargo;
+      document.getElementById('verTelefone').textContent = u.telefone || '—';
+      document.getElementById('verNif').textContent = u.nif || '—';
+      document.getElementById('verTipoConta').textContent = u.tipoConta;
       document.getElementById('verId').textContent    = u.id;
 
       document.getElementById('editNome').value  = u.nome;
       document.getElementById('editEmail').value = u.email;
+      document.getElementById('editTelefone').value = u.telefone || '';
+      document.getElementById('editNif').value = u.nif || '';
     }
 
-    preencherPerfil(utilizador);
+    fetch(`/utilizadores/${utilizador.id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Erro ao sincronizar dados com o servidor');
+      return res.json();
+    })
+    .then(dadosAtualizados => {
+      // 1. Atualiza a sessionStorage com o que está real na BD neste segundo
+      sessionStorage.setItem('utilizador', JSON.stringify(dadosAtualizados));
+
+    // 2. Renderiza os dados frescos no ecrã
+      preencherPerfil(dadosAtualizados);
+    })
+    .catch(err => {
+      console.warn("Modo Offline: A usar dados locais da sessão.", err);
+      // Se o servidor falhar ou estiveres offline, ele usa o backup da sessão para não partir a página
+      preencherPerfil(utilizador);
+    });
 
     // EDIÇÃO
     function ativarEdicao() {
+      const u = JSON.parse(sessionStorage.getItem('utilizador')) || utilizador;
+      document.getElementById('editNome').value = u.nome || '';
+      document.getElementById('editEmail').value = u.email || '';
+      document.getElementById('editTelefone').value = u.telefone || '';
+      document.getElementById('editNif').value = u.nif || '';
+
       document.getElementById('modoVer').style.display    = 'none';
       document.getElementById('modoEditar').style.display = 'block';
       document.getElementById('editErro').style.display    = 'none';
@@ -278,6 +331,8 @@
     function guardarDados() {
       const nome      = document.getElementById('editNome').value.trim();
       const email     = document.getElementById('editEmail').value.trim();
+      const telefone  = document.getElementById('editTelefone').value.trim();
+      const nif       = document.getElementById('editNif').value.trim();
       const password  = document.getElementById('editPassword').value.trim();
       const confirmar = document.getElementById('editConfirmar').value.trim();
       const erro      = document.getElementById('editErro');
@@ -305,7 +360,10 @@
         id: utilizador.id,
         nome,
         email,
+        telefone,
+        nif,
         cargo: utilizador.cargo,
+        tipoConta: utilizador.tipoConta,
         password: password || utilizador.password
       };
 
@@ -321,9 +379,11 @@
       .then(u => {
         sessionStorage.setItem('utilizador', JSON.stringify(u));
         preencherPerfil(u);
-        sucesso.innerText = 'Dados atualizados com sucesso!';
-        sucesso.style.display = 'block';
-        setTimeout(() => cancelarEdicao(), 1500);
+        cancelarEdicao();
+
+        const elementoToast = document.getElementById('popupSucesso');
+        const toast = new bootstrap.Toast(elementoToast, { delay: 3000 }); // Desaparece após 3 segundos
+        toast.show();
       })
       .catch(err => {
         erro.innerText = err.message || 'Erro ao guardar dados!';

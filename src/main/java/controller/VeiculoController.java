@@ -64,6 +64,12 @@ public class VeiculoController {
         }
     }
 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Veiculo> atualizar(@PathVariable long id, @RequestBody Veiculo veiculo) {
+        return ResponseEntity.ok(veiculoService.atualizar(id, veiculo));
+    }
+
     // PUT /veiculos/{id}/status — atualizar status
     @PutMapping("/{id}/status")
     public ResponseEntity<Veiculo> atualizarStatus(@PathVariable long id, @RequestParam Status status) {

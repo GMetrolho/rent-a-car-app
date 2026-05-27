@@ -57,6 +57,12 @@ public class UtilizadorController {
     }
 
     @PutMapping("/{id}")
+    public ResponseEntity<Utilizador> atualizar(@PathVariable long id, @RequestBody Utilizador utilizador) {
+        return ResponseEntity.ok(utilizadorService.atualizar(id, utilizador));
+    }
+
+
+    @PutMapping("/{id}/cargo")
     public ResponseEntity<Utilizador> atualizarCargo(@PathVariable long id, @RequestBody Map<String, String> body) {
         String novoCargoStr = body.get("cargo");
         if (novoCargoStr == null || novoCargoStr.isBlank()) {

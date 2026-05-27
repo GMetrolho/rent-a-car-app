@@ -83,6 +83,41 @@ public class UtilizadorService {
         return utilizadorRepository.save(utilizador);
     }
 
+    public Utilizador atualizar(long id, Utilizador dadosAtualizados) {
+        Utilizador utilizadorExistente = buscarId(id);
+
+        if (dadosAtualizados.getNome() == null || dadosAtualizados.getNome().isBlank()) {
+            throw new RuntimeException("O nome é obrigatório!");
+        }
+        if (dadosAtualizados.getEmail() == null || dadosAtualizados.getEmail().isBlank()) {
+            throw new RuntimeException("O email é obrigatório!");
+        }
+        if (dadosAtualizados.getTipoConta() != null) {
+        utilizadorExistente.setTipoConta(dadosAtualizados.getTipoConta());
+        }
+
+        if (utilizadorExistente.getTipoConta() == Tipo_Conta.EMPRESA) {
+            if (dadosAtualizados.getNif() == null || dadosAtualizados.getNif().isBlank()) {
+                throw new RuntimeException("NIF é obrigatório para contas de empresa!");
+            }
+        }
+
+        if (dadosAtualizados.getPassword() != null && !dadosAtualizados.getPassword().isBlank()) {
+            if (dadosAtualizados.getPassword().length() < 8) {
+                throw new RuntimeException("Password demasiado curta. Mínimo 8 caracteres!");
+             }
+            utilizadorExistente.setPassword(dadosAtualizados.getPassword());
+        }
+
+        utilizadorExistente.setNome(dadosAtualizados.getNome());
+        utilizadorExistente.setEmail(dadosAtualizados.getEmail());
+        utilizadorExistente.setNif(dadosAtualizados.getNif());
+        utilizadorExistente.setTelefone(dadosAtualizados.getTelefone());
+
+
+        return utilizadorRepository.save(utilizadorExistente);
+    }
+
     public void apagar(long id) {
         if (!utilizadorRepository.existsById(id))
             throw new RuntimeException("Utilizador não encontrado!");

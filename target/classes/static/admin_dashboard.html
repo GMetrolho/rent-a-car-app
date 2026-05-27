@@ -32,7 +32,35 @@
     }
     .btn-add-custom:hover { background:#ea6c00; }
 
-    /* MODAL SELECT */
+    /* MODAL SELECT */public Utilizador atualizar(long id, Utilizador dadosAtualizados) {
+        Utilizador utilizadorExistente = buscarId(id);
+
+        if (dadosAtualizados.getNome() == null || dadosAtualizados.getNome().isBlank()) {
+            throw new RuntimeException("O nome é obrigatório!");
+        }
+        if (dadosAtualizados.getEmail() == null || dadosAtualizados.getEmail().isBlank()) {
+            throw new RuntimeException("O email é obrigatório!");
+        }
+        if (dadosAtualizados.getPassword() == null && dadosAtualizados.getPassword().isBlank()) {
+            if (dadosAtualizados.getPassword().length() < 8) {
+                throw new RuntimeException("Password demasiado curta. Mínimo 8 caracteres!");
+            }
+            utilizadorExistente.setPassword(dadosAtualizados.getPassword());
+        }
+
+        if (utilizadorExistente.getTipoConta() == Tipo_Conta.EMPRESA) {
+            if (dadosAtualizados.getNif() == null || dadosAtualizados.getNif().isBlank())
+                throw new RuntimeException("NIF é obrigatório para contas de empresa!");
+        }
+
+        utilizadorExistente.setNome(dadosAtualizados.getNome());
+        utilizadorExistente.setEmail(dadosAtualizados.getEmail());
+        utilizadorExistente.setNif(dadosAtualizados.getNif());
+        utilizadorExistente.setTelefone(dadosAtualizados.getTelefone());
+
+
+        return utilizadorRepository.save(dadosAtualizados);
+    }
     select.form-control-custom { appearance:auto; }
 
     /* OVERVIEW CARDS */
@@ -74,7 +102,6 @@
 </head>
 <body>
 
-  <!-- NAVBAR -->
   <nav class="navbar">
     <a class="navbar-brand" href="index.html">
       <svg viewBox="0 0 24 24"><path d="M5 11l1.5-4.5h11L19 11M3 17h1v1a1 1 0 002 0v-1h12v1a1 1 0 002 0v-1h1v-5l-2-6H5L3 12v5zm2.5-3a1 1 0 110-2 1 1 0 010 2zm9 0a1 1 0 110-2 1 1 0 010 2z"/></svg>
@@ -85,7 +112,6 @@
 
   <div class="page-layout">
 
-    <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
       <div class="sidebar-section">Dashboard</div>
       <div class="sidebar-link active" onclick="mostrarSecao('overview', this)">📊 Overview</div>
@@ -98,10 +124,8 @@
       </div>
     </div>
 
-    <!-- CONTEUDO -->
     <div class="content">
 
-      <!-- STATS TOPO (sempre visíveis) -->
       <div class="stats-grid" id="statsGrid">
         <div class="stat-card"><div class="stat-label">Total Alugueres</div><div class="stat-value blue" id="statAlugueres">—</div></div>
         <div class="stat-card"><div class="stat-label">Ativos</div><div class="stat-value green" id="statAtivos">—</div></div>
@@ -109,10 +133,8 @@
         <div class="stat-card"><div class="stat-label">Veículos</div><div class="stat-value blue" id="statVeiculos">—</div></div>
       </div>
 
-      <!-- SECAO OVERVIEW -->
       <div class="secao active" id="secao-overview">
 
-        <!-- CARDS DE LUCRO -->
         <div class="overview-grid">
           <div class="overview-card">
             <div class="ov-label">💰 Lucro Total</div>
@@ -146,7 +168,6 @@
           </div>
         </div>
 
-        <!-- GRÁFICOS -->
         <div class="charts-grid">
           <div class="chart-card">
             <h3>📋 Alugueres por Estado</h3>
@@ -164,7 +185,6 @@
 
       </div>
 
-      <!-- SECAO ALUGUERES -->
       <div class="secao" id="secao-alugueres">
         <div class="card-custom">
           <div class="card-title">Gestão de Alugueres</div>
@@ -177,7 +197,6 @@
         </div>
       </div>
 
-      <!-- SECAO VEICULOS -->
       <div class="secao" id="secao-veiculos">
         <div class="card-custom">
           <div class="card-title">Gestão de Veículos</div>
@@ -191,7 +210,6 @@
         </div>
       </div>
 
-      <!-- SECAO CATEGORIAS -->
       <div class="secao" id="secao-categorias">
         <div class="card-custom">
           <div class="card-title">Gestão de Categorias</div>
@@ -205,7 +223,6 @@
         </div>
       </div>
 
-      <!-- SECAO UTILIZADORES (só ADMIN) -->
       <div class="secao" id="secao-utilizadores">
         <div class="card-custom">
           <div class="card-title">Gestão de Utilizadores</div>
@@ -221,7 +238,6 @@
     </div>
   </div>
 
-  <!-- MODAL VEICULO -->
   <div class="modal-overlay" id="modalVeiculo">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharModalVeiculo()">✕</button>
@@ -234,6 +250,11 @@
         <div class="col-6"><label class="form-label-custom">Modelo</label><input class="form-control-custom" id="vModelo"/></div>
         <div class="col-6"><label class="form-label-custom">Ano</label><input class="form-control-custom" type="number" id="vAno" placeholder="2023"/></div>
         <div class="col-6"><label class="form-label-custom">Preço/dia (€)</label><input class="form-control-custom" type="number" id="vPreco" placeholder="50"/></div>
+
+        <div class="col-6"><label class="form-label-custom">Cilindrada</label><input class="form-control-custom" type="number" id="vCilindrada"></div>
+        <div class="col-6"><label class="form-label-custom">CO2</label><input class="form-control-custom" type="number" id="vCO2"></div>
+        <div class="col-6"><label class="form-label-custom">Potência</label><input class="form-control-custom" type="number" id="vPotencia"></div>
+
         <div class="col-6"><label class="form-label-custom">Status</label>
           <select class="form-control-custom" id="vStatus">
             <option value="DISPONIVEL">Disponível</option>
@@ -276,7 +297,6 @@
     </div>
   </div>
 
-  <!-- MODAL CATEGORIA -->
   <div class="modal-overlay" id="modalCategoria">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharModalCategoria()">✕</button>
@@ -288,7 +308,6 @@
     </div>
   </div>
 
-  <!-- MODAL CARGO -->
   <div class="modal-overlay" id="modalCargo">
     <div class="modal-box">
       <button class="modal-close" onclick="fecharModalCargo()">✕</button>
