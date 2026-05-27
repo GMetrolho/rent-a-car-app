@@ -1,4 +1,4 @@
-// js/dashboard.js
+ // js/dashboard.js
 
 // ─────────────────────────────────────────────
 // GESTÃO DE ALUGUERES (Máquina de Estados)
@@ -115,6 +115,9 @@ function abrirModalVeiculo(v) {
     document.getElementById('vModelo').value     = v.modelo;
     document.getElementById('vAno').value        = v.ano;
     document.getElementById('vPreco').value      = v.precoDiario;
+    document.getElementById('vCilindrada').value = v.cilindrada;
+    document.getElementById('vCO2').value = v.co2;
+    document.getElementById('vPotencia').value = v.potencia;
     document.getElementById('vStatus').value     = v.status;
     document.getElementById('vMotor').value      = v.tipoMotor;
     document.getElementById('vCaixa').value      = v.tipoCaixa;
@@ -139,6 +142,9 @@ function guardarVeiculo() {
     modelo:        document.getElementById('vModelo').value,
     ano:           parseInt(document.getElementById('vAno').value),
     precoDiario:   parseFloat(document.getElementById('vPreco').value),
+    cilindrada:    parseInt(document.getElementById('vCilindrada').value),
+    co2:           parseInt(document.getElementById('vCO2').value),
+    potencia:      parseInt(document.getElementById('vPotencia').value),
     status:        document.getElementById('vStatus').value,
     tipoMotor:     document.getElementById('vMotor').value,
     tipoCaixa:     document.getElementById('vCaixa').value,
