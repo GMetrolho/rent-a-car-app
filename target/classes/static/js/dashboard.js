@@ -98,6 +98,7 @@ function carregarVeiculos() {
       `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Sem veículos.</td></tr>';
     });
 }
+
 function abrirModalVeiculo(v) {
   document.getElementById('modalVeiculoErro').style.display = 'none';
   fetch('/categorias').then(r => r.json()).then(cats => {
@@ -118,9 +119,23 @@ function abrirModalVeiculo(v) {
     document.getElementById('vCO2').value        = v.co2 || '';
     document.getElementById('vPotencia').value   = v.potencia || '';
     document.getElementById('vStatus').value     = v.status;
-    document.getElementById('vMotor').value      = v.tipoMotor || 'COMBUSTAO';
-    document.getElementById('vCaixa').value      = v.tipoCaixa || 'MANUAL';
-    document.getElementById('vCombustao').value  = v.tipoCombustao || 'GASOLINA';
+
+    // ─── AQUI FOI ONDE SE FEZ A ALTERAÇÃO PARA O PASSO 2 ───
+    const motorEnum = v.tipoMotor || 'COMBUSTAO';
+    document.getElementById('vMotor').value = motorEnum;
+    document.getElementById('vCaixa').value = v.tipoCaixa || 'MANUAL';
+
+    if (motorEnum === 'ELETRICO') {
+      document.getElementById('vCombustao').innerHTML = '<option value="" selected>Não aplicável (Elétrico)</option>';
+    } else {
+      document.getElementById('vCombustao').innerHTML = `
+        <option value="GASOLINA">Gasolina</option>
+        <option value="GASOLEO">Gasóleo</option>
+      `;
+      document.getElementById('vCombustao').value = v.tipoCombustao || 'GASOLINA';
+    }
+    // ───────────────────────────────────────────────────────
+
     setTimeout(() => { if (v.categoria && document.getElementById('vCategoria')) document.getElementById('vCategoria').value = v.categoria.id; }, 300);
   } else {
     document.getElementById('modalVeiculoTitulo').textContent = 'Adicionar Veículo';
@@ -151,6 +166,12 @@ function abrirModalVeiculo(v) {
   setTimeout(() => {
     onModalMotorChange();
   }, 50);
+
+  // 🔥 ADICIONA ESTA LINHA AQUI: Liga o select diretamente ao código JavaScript
+  const selectMotor = document.getElementById('vMotor');
+  if (selectMotor) {
+    selectMotor.addEventListener('change', onModalMotorChange);
+  }
 
   document.getElementById('modalVeiculo').classList.add('open');
 }
@@ -218,13 +239,13 @@ function onModalMotorChange() {
   if (motor === 'ELETRICO') {
     // 1. Bloqueia a caixa em AUTOMATICO
     selectCaixa.value = 'AUTOMATICO';
-    selectCaixa.disabled = true; // O utilizador já não consegue clicar nem mudar
+    selectCaixa.disabled = true;
 
-    // 2. Limpa as opções de Gasolina/Gasóleo e cria uma opção única "Não aplicável"
+    // 2. Limpa as opções e mete "Não aplicável"
     selectCombustao.innerHTML = '<option value="" selected>Não aplicável (Elétrico)</option>';
-    selectCombustao.disabled = true; // Bloqueia o campo
+    selectCombustao.disabled = true;
   } else {
-    // Se for COMBUSTAO ou HIBRIDO, devolvemos o controlo e as opções normais
+    // Se for COMBUSTAO ou HIBRIDO, devolve o controlo e as opções normais
     selectCaixa.disabled = false;
 
     selectCombustao.disabled = false;
