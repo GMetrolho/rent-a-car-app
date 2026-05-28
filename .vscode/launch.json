@@ -1,0 +1,14 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-StandApplication<automovel>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "stand.StandApplication",
+      "projectName": "automovel",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

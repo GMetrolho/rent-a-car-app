@@ -212,14 +212,14 @@
     }
 
     // ─── CATEGORIAS ──────────────────────────
-    requisicaoSegura('/categorias').then(r => r.json()).then(cats => {
+    apiFetch('/categorias').then(r => r.json()).then(cats => {
       const sel = document.getElementById('filtroCategoria');
       cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.nome; sel.appendChild(o); });
     }).catch(() => {});
 
     // ─── VEICULOS ────────────────────────────
     function carregarVeiculos() {
-      requisicaoSegura('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
+      apiFetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
         .catch(() => { document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>'; });
     }
 
@@ -383,7 +383,7 @@
         dataDevolucao:    dev
       });
 
-      requisicaoSegura('/alugueres?' + params, { method: 'POST' })
+      apiFetch('/alugueres?' + params, { method: 'POST' })
         .then(res => { if (!res.ok) return res.text().then(m => { throw new Error(m); }); return res.json(); })
         .then(() => {
           sucesso.innerText = 'Reserva feita com sucesso!';

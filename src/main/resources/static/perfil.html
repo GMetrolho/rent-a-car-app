@@ -291,7 +291,7 @@
       document.getElementById('editNif').value = u.nif || '';
     }
 
-    requisicaoSegura(`/utilizadores/${utilizador.id}`)
+    apiFetch(`/utilizadores/${utilizador.id}`)
       .then(res => {
         if (!res.ok) throw new Error('Erro ao sincronizar dados com o servidor');
       return res.json();
@@ -367,7 +367,7 @@
         password: password || utilizador.password
       };
 
-      requisicaoSegura(`/utilizadores/${utilizador.id}`, {
+      apiFetch(`/utilizadores/${utilizador.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -392,7 +392,7 @@
     }
 
     // HISTÓRICO DE ALUGUERES
-    requisicaoSegura('/alugueres')
+    apiFetch('/alugueres')
       .then(r => r.json())
       .then(alugueres => {
         const meus = alugueres.filter(a => a.cliente?.id === utilizador.id);

@@ -4,10 +4,9 @@
 // GESTÃO DE ALUGUERES (Máquina de Estados)
 // ─────────────────────────────────────────────
 function carregarAlugueres() {
-  requisicaoSegura('/alugueres')
+  apiFetch('/alugueres')
     .then(r => r.json())
     .then(lista => {
-      // Atualizar contadores se eles existirem na página
       if(document.getElementById('statAlugueres')) document.getElementById('statAlugueres').textContent = lista.length;
       if(document.getElementById('statAtivos')) document.getElementById('statAtivos').textContent = lista.filter(a => a.statusAluguer === 'ATIVA').length;
       if(document.getElementById('statPendentes')) document.getElementById('statPendentes').textContent = lista.filter(a => a.statusAluguer === 'PENDENTE').length;
@@ -55,7 +54,7 @@ function carregarAlugueres() {
 }
 
 function acaoAluguer(id, acao) {
-  requisicaoSegura(`/alugueres/${id}/${acao}`, { method: 'PUT' })
+  apiFetch(`/alugueres/${id}/${acao}`, { method: 'PUT' })
     .then(r => {
       if (!r.ok) return r.text().then(text => { throw new Error(text) });
       return r.json();
@@ -74,7 +73,7 @@ function acaoAluguer(id, acao) {
 let categorias = [];
 
 function carregarVeiculos() {
-  requisicaoSegura('/veiculos')
+  apiFetch('/veiculos')
     .then(r => r.json())
     .then(lista => {
       if(document.getElementById('statVeiculos')) document.getElementById('statVeiculos').textContent = lista.length;
@@ -101,7 +100,7 @@ function carregarVeiculos() {
 
 function abrirModalVeiculo(v) {
   document.getElementById('modalVeiculoErro').style.display = 'none';
-  requisicaoSegura('/categorias').then(r => r.json()).then(cats => {
+  apiFetch('/categorias').then(r => r.json()).then(cats => {
     categorias = cats;
     const sel = document.getElementById('vCategoria');
     if (sel) sel.innerHTML = '<option value="">Sem categoria</option>' + cats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
@@ -172,7 +171,6 @@ function fecharModalVeiculo() { document.getElementById('modalVeiculo').classLis
 function guardarVeiculo() {
   const id = document.getElementById('veiculoId').value;
   const catId = document.getElementById('vCategoria').value;
-
   const tipoMotor = document.getElementById('vMotor').value;
 
   const body = {
@@ -194,14 +192,14 @@ function guardarVeiculo() {
   const url    = id ? `/veiculos/${id}` : '/veiculos';
   const method = id ? 'PUT' : 'POST';
 
-  requisicaoSegura(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  apiFetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     .then(r => { if (!r.ok) return r.text().then(m => { throw new Error(m); }); return r.json(); })
     .then(veiculo => {
       const ficheiro = document.getElementById('vImagem')?.files[0];
       if (ficheiro) {
         const formData = new FormData();
         formData.append('ficheiro', ficheiro);
-        return requisicaoSegura(`/veiculos/${veiculo.id}/imagem`, { method: 'POST', body: formData })
+        return apiFetch(`/veiculos/${veiculo.id}/imagem`, { method: 'POST', body: formData })
           .then(r => { if (!r.ok) throw new Error('Veículo guardado mas erro no upload da imagem!'); });
       }
     })
@@ -211,7 +209,7 @@ function guardarVeiculo() {
 
 function apagarVeiculo(id) {
   if (!confirm('Tens a certeza que queres apagar este veículo?')) return;
-  requisicaoSegura(`/veiculos/${id}`, { method: 'DELETE' })
+  apiFetch(`/veiculos/${id}`, { method: 'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo apagado!'); })
     .catch(() => mostrarMsg('veiculoErro', 'Erro ao apagar veículo!'));
@@ -244,7 +242,7 @@ function carregarCategorias() {
   const body = document.getElementById('bodyCategorias');
   if (!body) return;
 
-  requisicaoSegura('/categorias')
+  apiFetch('/categorias')
     .then(r => r.json())
     .then(lista => {
       body.innerHTML = lista.map(c => `
@@ -276,7 +274,7 @@ function guardarCategoria() {
     document.getElementById('modalCategoriaErro').style.display = 'block';
     return;
   }
-  requisicaoSegura('/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, descricao }) })
+  apiFetch('/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, descricao }) })
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => { fecharModalCategoria(); carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria adicionada!'); })
     .catch(() => { document.getElementById('modalCategoriaErro').innerText = 'Erro ao guardar!'; document.getElementById('modalCategoriaErro').style.display='block'; });
@@ -284,7 +282,7 @@ function guardarCategoria() {
 
 function apagarCategoria(id) {
   if (!confirm('Apagar esta categoria?')) return;
-  requisicaoSegura(`/categorias/${id}`, { method:'DELETE' })
+  apiFetch(`/categorias/${id}`, { method:'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria apagada!'); })
     .catch(() => mostrarMsg('categoriaErro', 'Erro ao apagar!'));
@@ -297,7 +295,7 @@ function carregarUtilizadores() {
   const body = document.getElementById('bodyUtilizadores');
   if (!body) return;
 
-  requisicaoSegura('/utilizadores')
+  apiFetch('/utilizadores')
     .then(r => r.json())
     .then(lista => {
       body.innerHTML = lista.map(u => `
@@ -324,7 +322,7 @@ function fecharModalCargo() { document.getElementById('modalCargo').classList.re
 function guardarCargo() {
   const id    = document.getElementById('cargoUtilizadorId').value;
   const cargo = document.getElementById('novoCargo').value;
-  requisicaoSegura(`/utilizadores/${id}/cargo`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
+  apiFetch(`/utilizadores/${id}/cargo`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => { fecharModalCargo(); carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Cargo atualizado!'); })
     .catch(() => mostrarMsg('utilizadorErro', 'Erro ao atualizar cargo!'));
@@ -332,7 +330,7 @@ function guardarCargo() {
 
 function apagarUtilizador(id) {
   if (!confirm('Tens a certeza que queres remover este utilizador?')) return;
-  requisicaoSegura(`/utilizadores/${id}`, { method:'DELETE' })
+  apiFetch(`/utilizadores/${id}`, { method:'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Utilizador removido!'); })
     .catch(() => mostrarMsg('utilizadorErro', 'Erro ao remover!'));

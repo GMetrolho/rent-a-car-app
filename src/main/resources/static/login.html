@@ -38,7 +38,7 @@
 
       <div class="mb-3">
         <label class="form-label-custom" for="email">Email</label>
-        <input type="email" class="form-control-custom" autocomplete="username"" id="email" placeholder="email@exemplo.com"/>
+        <input type="email" class="form-control-custom" autocomplete="username" id="email" placeholder="email@exemplo.com"/>
       </div>
       <div class="mb-3">
         <label class="form-label-custom" for="password">Password</label>
@@ -54,7 +54,7 @@
   <script>
     const u = sessionStorage.getItem('utilizador');
     if (u) {
-        const cargo = JSON.parse(u).cargo;
+      const cargo = JSON.parse(u).cargo;
       if (cargo === 'ADMIN') {
         window.location.href = 'admin_dashboard.html';
       } else if (cargo === 'FUNCIONARIO') {
@@ -76,8 +76,7 @@
         return;
       }
 
-      // Aponta para a nova rota que estruturámos no teu AutenticacaoController
-      requisicaoSegura('http://localhost:8081/utilizadores/login', {
+      window.fetch('http://localhost:8081/utilizadores/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email, password: password })
@@ -87,11 +86,10 @@
           return res.json();
         })
         .then(respostaApi => {
-          // Guardar o token encriptado e o snapshot do utilizador
-          sessionStorage.setItem('token', respostaApi.token);
+          // Guardar apenas os dados do utilizador (sem token)
           sessionStorage.setItem('utilizador', JSON.stringify({
-            id: respostaApi.id,
-            nome: respostaApi.nome,
+            id:    respostaApi.id,
+            nome:  respostaApi.nome,
             cargo: respostaApi.cargo,
             email: respostaApi.email
           }));

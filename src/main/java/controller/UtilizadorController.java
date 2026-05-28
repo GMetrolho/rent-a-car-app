@@ -42,6 +42,14 @@ public class UtilizadorController {
         return ResponseEntity.ok(utilizadorService.registar(utilizador));
     }
 
+    record LoginRequest(String email, String password) {}
+
+    // Substitui o método login
+    @PostMapping("/login")
+    public ResponseEntity<Utilizador> login(@RequestBody LoginRequest req) {
+        return ResponseEntity.ok(utilizadorService.login(req.email(), req.password()));
+}
+
     // DELETE /utilizadores/{id} — apagar
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> apagar(@PathVariable long id) {

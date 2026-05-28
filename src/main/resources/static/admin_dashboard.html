@@ -329,12 +329,12 @@
     let chartAlugueres = null;
     let chartFrota = null;
 
-    // CORRIGIDO: fetch() substituído por requisicaoSegura() para enviar o JWT
+
     function carregarOverview() {
       Promise.all([
-        requisicaoSegura('/alugueres').then(r => r.json()),
-        requisicaoSegura('/veiculos').then(r => r.json()),
-        requisicaoSegura('/utilizadores').then(r => r.json())
+        apiFetch('/alugueres').then(r => r.json()),
+        apiFetch('/veiculos').then(r => r.json()),
+        apiFetch('/utilizadores').then(r => r.json())
       ]).then(([alugueres, veiculos, utilizadores]) => {
 
         document.getElementById('statAlugueres').textContent = alugueres.length;

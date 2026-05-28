@@ -149,7 +149,7 @@
         return;
       }
 
-      requisicaoSegura('/utilizadores/registar', {
+      fetch('/utilizadores/registar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nome, email, password, telefone, nif, tipoConta, cargo: 'CLIENTE' })
