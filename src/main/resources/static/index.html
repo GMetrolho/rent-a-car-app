@@ -78,7 +78,7 @@
     <div class="content">
       <div class="filters-bar">
         <div class="filter-group">
-          <label>Tipo de Motor</label>
+          <label for="filtroMotor">Tipo de Motor</label>
           <select id="filtroMotor" onchange="onMotorChange()">
             <option value="">Todos</option>
             <option value="COMBUSTAO">Combustão</option>
@@ -87,7 +87,7 @@
           </select>
         </div>
         <div class="filter-group" id="grupoCaixa">
-          <label>Caixa</label>
+          <label for="filtroCaixa">Caixa</label>
           <select id="filtroCaixa">
             <option value="">Todas</option>
             <option value="MANUAL">Manual</option>
@@ -95,7 +95,7 @@
           </select>
         </div>
         <div class="filter-group" id="grupoCombustao">
-          <label>Combustível</label>
+          <label for="filtroCombustao">Combustível</label>
           <select id="filtroCombustao">
             <option value="">Todos</option>
             <option value="GASOLINA">Gasolina</option>
@@ -103,11 +103,11 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Categoria</label>
+          <label for="filtroCategoria">Categoria</label>
           <select id="filtroCategoria"><option value="">Todas</option></select>
         </div>
         <div class="filter-group">
-          <label>Estado</label>
+          <label for="filtroStatus">Estado</label>
           <select id="filtroStatus">
             <option value="">Todos</option>
             <option value="DISPONIVEL">Disponível</option>
@@ -152,11 +152,11 @@
       <div class="alert-erro"    id="modalErro"></div>
       <div class="alert-sucesso" id="modalSucesso"></div>
       <div class="mb-3">
-        <label class="form-label-custom">Data de levantamento</label>
+        <label class="form-label-custom" for="dataLevantamento"">Data de levantamento</label>
         <input type="datetime-local" class="form-control-custom" id="dataLevantamento" onchange="atualizarMinDevolucao()"/>
       </div>
       <div class="mb-3">
-        <label class="form-label-custom">Data de devolução</label>
+        <label class="form-label-custom" for="dataDevolucao">Data de devolução</label>
         <input type="datetime-local" class="form-control-custom" id="dataDevolucao"/>
       </div>
       <button class="btn-orange-custom w-100 mt-2" onclick="confirmarReserva()">Confirmar Reserva</button>
@@ -212,14 +212,14 @@
     }
 
     // ─── CATEGORIAS ──────────────────────────
-    fetch('/categorias').then(r => r.json()).then(cats => {
+    requisicaoSegura('/categorias').then(r => r.json()).then(cats => {
       const sel = document.getElementById('filtroCategoria');
       cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.nome; sel.appendChild(o); });
     }).catch(() => {});
 
     // ─── VEICULOS ────────────────────────────
     function carregarVeiculos() {
-      fetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
+      requisicaoSegura('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
         .catch(() => { document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>'; });
     }
 
@@ -383,7 +383,7 @@
         dataDevolucao:    dev
       });
 
-      fetch('/alugueres?' + params, { method: 'POST' })
+      requisicaoSegura('/alugueres?' + params, { method: 'POST' })
         .then(res => { if (!res.ok) return res.text().then(m => { throw new Error(m); }); return res.json(); })
         .then(() => {
           sucesso.innerText = 'Reserva feita com sucesso!';

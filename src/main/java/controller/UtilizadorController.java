@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import model.Utilizador;
@@ -41,12 +40,6 @@ public class UtilizadorController {
     @PostMapping("/registar")
     public ResponseEntity<Utilizador> registar(@RequestBody Utilizador utilizador) {
         return ResponseEntity.ok(utilizadorService.registar(utilizador));
-    }
-
-    // POST /utilizadores/login — login
-    @PostMapping("/login")
-    public ResponseEntity<Utilizador> login(@RequestParam String email, @RequestParam String password) {
-        return ResponseEntity.ok(utilizadorService.login(email, password));
     }
 
     // DELETE /utilizadores/{id} — apagar

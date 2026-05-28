@@ -6,6 +6,7 @@
   <title>AutoRent — Login</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
+  <script src="js/api.js"></script>
   <style>
     .main-wrapper { flex:1; display:flex; align-items:center; justify-content:center; padding:40px 16px; }
     .auth-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:40px; width:100%; max-width:420px; }
@@ -75,19 +76,33 @@
         return;
       }
 
-      fetch(`/utilizadores/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, { method: 'POST' })
+      // Aponta para a nova rota que estruturámos no teu AutenticacaoController
+      requisicaoSegura('http://localhost:8081/utilizadores/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      })
         .then(res => {
           if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
           return res.json();
         })
-        .then(utilizador => {
-          sessionStorage.setItem('utilizador', JSON.stringify(utilizador));
-          if (utilizador.cargo === 'ADMIN') {
+        .then(respostaApi => {
+          // Guardar o token encriptado e o snapshot do utilizador
+          sessionStorage.setItem('token', respostaApi.token);
+          sessionStorage.setItem('utilizador', JSON.stringify({
+            id: respostaApi.id,
+            nome: respostaApi.nome,
+            cargo: respostaApi.cargo,
+            email: respostaApi.email
+          }));
+
+          // Redirecionamento baseado no cargo
+          if (respostaApi.cargo === 'ADMIN') {
             window.location.href = 'admin_dashboard.html';
-          } else if (utilizador.cargo === 'FUNCIONARIO') {
+          } else if (respostaApi.cargo === 'FUNCIONARIO') {
             window.location.href = 'dashboard.html';
           } else {
-           window.location.href = 'index.html';
+            window.location.href = 'index.html';
           }
         })
         .catch(err => {
@@ -95,8 +110,6 @@
           erro.style.display = 'block';
         });
     }
-
-    document.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
   </script>
 </body>
 </html>

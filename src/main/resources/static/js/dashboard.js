@@ -1,10 +1,10 @@
- // js/dashboard.js
+// js/dashboard.js
 
 // ─────────────────────────────────────────────
 // GESTÃO DE ALUGUERES (Máquina de Estados)
 // ─────────────────────────────────────────────
 function carregarAlugueres() {
-  fetch('/alugueres')
+  requisicaoSegura('/alugueres')
     .then(r => r.json())
     .then(lista => {
       // Atualizar contadores se eles existirem na página
@@ -55,7 +55,7 @@ function carregarAlugueres() {
 }
 
 function acaoAluguer(id, acao) {
-  fetch(`/alugueres/${id}/${acao}`, { method: 'PUT' })
+  requisicaoSegura(`/alugueres/${id}/${acao}`, { method: 'PUT' })
     .then(r => {
       if (!r.ok) return r.text().then(text => { throw new Error(text) });
       return r.json();
@@ -74,7 +74,7 @@ function acaoAluguer(id, acao) {
 let categorias = [];
 
 function carregarVeiculos() {
-  fetch('/veiculos')
+  requisicaoSegura('/veiculos')
     .then(r => r.json())
     .then(lista => {
       if(document.getElementById('statVeiculos')) document.getElementById('statVeiculos').textContent = lista.length;
@@ -101,7 +101,7 @@ function carregarVeiculos() {
 
 function abrirModalVeiculo(v) {
   document.getElementById('modalVeiculoErro').style.display = 'none';
-  fetch('/categorias').then(r => r.json()).then(cats => {
+  requisicaoSegura('/categorias').then(r => r.json()).then(cats => {
     categorias = cats;
     const sel = document.getElementById('vCategoria');
     if (sel) sel.innerHTML = '<option value="">Sem categoria</option>' + cats.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
@@ -120,7 +120,6 @@ function abrirModalVeiculo(v) {
     document.getElementById('vPotencia').value   = v.potencia || '';
     document.getElementById('vStatus').value     = v.status;
 
-    // ─── AQUI FOI ONDE SE FEZ A ALTERAÇÃO PARA O PASSO 2 ───
     const motorEnum = v.tipoMotor || 'COMBUSTAO';
     document.getElementById('vMotor').value = motorEnum;
     document.getElementById('vCaixa').value = v.tipoCaixa || 'MANUAL';
@@ -134,22 +133,18 @@ function abrirModalVeiculo(v) {
       `;
       document.getElementById('vCombustao').value = v.tipoCombustao || 'GASOLINA';
     }
-    // ───────────────────────────────────────────────────────
 
     setTimeout(() => { if (v.categoria && document.getElementById('vCategoria')) document.getElementById('vCategoria').value = v.categoria.id; }, 300);
   } else {
     document.getElementById('modalVeiculoTitulo').textContent = 'Adicionar Veículo';
     document.getElementById('veiculoId').value = '';
 
-    // Limpa os inputs de texto
     ['vMatricula','vMarca','vModelo','vAno','vPreco','vCilindrada','vCO2','vPotencia'].forEach(id => {
       if(document.getElementById(id)) document.getElementById(id).value = '';
     });
 
-    // Força o motor a começar em Combustão
     document.getElementById('vMotor').value = 'COMBUSTAO';
 
-    // RESET aos estados e opções dos selects (para o caso de terem ficado bloqueados do clique anterior)
     const selectCaixa = document.getElementById('vCaixa');
     selectCaixa.disabled = false;
     selectCaixa.value = 'MANUAL';
@@ -162,12 +157,8 @@ function abrirModalVeiculo(v) {
     `;
   }
 
-  // Executa logo a verificação para o caso de estares a EDITAR um elétrico já existente
-  setTimeout(() => {
-    onModalMotorChange();
-  }, 50);
+  setTimeout(() => { onModalMotorChange(); }, 50);
 
-  // 🔥 ADICIONA ESTA LINHA AQUI: Liga o select diretamente ao código JavaScript
   const selectMotor = document.getElementById('vMotor');
   if (selectMotor) {
     selectMotor.addEventListener('change', onModalMotorChange);
@@ -182,7 +173,6 @@ function guardarVeiculo() {
   const id = document.getElementById('veiculoId').value;
   const catId = document.getElementById('vCategoria').value;
 
-  // Captura o tipo de motor primeiro
   const tipoMotor = document.getElementById('vMotor').value;
 
   const body = {
@@ -197,25 +187,21 @@ function guardarVeiculo() {
     status:        document.getElementById('vStatus').value,
     tipoMotor:     tipoMotor,
     tipoCaixa:     document.getElementById('vCaixa').value,
-
-    // 🔥 CORREÇÃO AQUI: Se for elétrico envia null, senão envia o valor do select
     tipoCombustao: tipoMotor === 'ELETRICO' ? null : document.getElementById('vCombustao').value,
-
     categoria:     catId ? { id: parseInt(catId) } : null
   };
 
   const url    = id ? `/veiculos/${id}` : '/veiculos';
   const method = id ? 'PUT' : 'POST';
 
-  fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+  requisicaoSegura(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     .then(r => { if (!r.ok) return r.text().then(m => { throw new Error(m); }); return r.json(); })
     .then(veiculo => {
-      // Upload de imagem se foi selecionada
       const ficheiro = document.getElementById('vImagem')?.files[0];
       if (ficheiro) {
         const formData = new FormData();
         formData.append('ficheiro', ficheiro);
-        return fetch(`/veiculos/${veiculo.id}/imagem`, { method: 'POST', body: formData })
+        return requisicaoSegura(`/veiculos/${veiculo.id}/imagem`, { method: 'POST', body: formData })
           .then(r => { if (!r.ok) throw new Error('Veículo guardado mas erro no upload da imagem!'); });
       }
     })
@@ -225,7 +211,7 @@ function guardarVeiculo() {
 
 function apagarVeiculo(id) {
   if (!confirm('Tens a certeza que queres apagar este veículo?')) return;
-  fetch(`/veiculos/${id}`, { method: 'DELETE' })
+  requisicaoSegura(`/veiculos/${id}`, { method: 'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarVeiculos(); mostrarMsg('veiculoSucesso', 'Veículo apagado!'); })
     .catch(() => mostrarMsg('veiculoErro', 'Erro ao apagar veículo!'));
@@ -237,17 +223,12 @@ function onModalMotorChange() {
   const selectCombustao = document.getElementById('vCombustao');
 
   if (motor === 'ELETRICO') {
-    // 1. Bloqueia a caixa em AUTOMATICO
     selectCaixa.value = 'AUTOMATICO';
     selectCaixa.disabled = true;
-
-    // 2. Limpa as opções e mete "Não aplicável"
     selectCombustao.innerHTML = '<option value="" selected>Não aplicável (Elétrico)</option>';
     selectCombustao.disabled = true;
   } else {
-    // Se for COMBUSTAO ou HIBRIDO, devolve o controlo e as opções normais
     selectCaixa.disabled = false;
-
     selectCombustao.disabled = false;
     selectCombustao.innerHTML = `
       <option value="GASOLINA">Gasolina</option>
@@ -263,7 +244,7 @@ function carregarCategorias() {
   const body = document.getElementById('bodyCategorias');
   if (!body) return;
 
-  fetch('/categorias')
+  requisicaoSegura('/categorias')
     .then(r => r.json())
     .then(lista => {
       body.innerHTML = lista.map(c => `
@@ -295,7 +276,7 @@ function guardarCategoria() {
     document.getElementById('modalCategoriaErro').style.display = 'block';
     return;
   }
-  fetch('/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, descricao }) })
+  requisicaoSegura('/categorias', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ nome, descricao }) })
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => { fecharModalCategoria(); carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria adicionada!'); })
     .catch(() => { document.getElementById('modalCategoriaErro').innerText = 'Erro ao guardar!'; document.getElementById('modalCategoriaErro').style.display='block'; });
@@ -303,7 +284,7 @@ function guardarCategoria() {
 
 function apagarCategoria(id) {
   if (!confirm('Apagar esta categoria?')) return;
-  fetch(`/categorias/${id}`, { method:'DELETE' })
+  requisicaoSegura(`/categorias/${id}`, { method:'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarCategorias(); mostrarMsg('categoriaSucesso', 'Categoria apagada!'); })
     .catch(() => mostrarMsg('categoriaErro', 'Erro ao apagar!'));
@@ -316,7 +297,7 @@ function carregarUtilizadores() {
   const body = document.getElementById('bodyUtilizadores');
   if (!body) return;
 
-  fetch('/utilizadores')
+  requisicaoSegura('/utilizadores')
     .then(r => r.json())
     .then(lista => {
       body.innerHTML = lista.map(u => `
@@ -343,7 +324,7 @@ function fecharModalCargo() { document.getElementById('modalCargo').classList.re
 function guardarCargo() {
   const id    = document.getElementById('cargoUtilizadorId').value;
   const cargo = document.getElementById('novoCargo').value;
-  fetch(`/utilizadores/${id}/cargo`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
+  requisicaoSegura(`/utilizadores/${id}/cargo`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cargo }) })
     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
     .then(() => { fecharModalCargo(); carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Cargo atualizado!'); })
     .catch(() => mostrarMsg('utilizadorErro', 'Erro ao atualizar cargo!'));
@@ -351,7 +332,7 @@ function guardarCargo() {
 
 function apagarUtilizador(id) {
   if (!confirm('Tens a certeza que queres remover este utilizador?')) return;
-  fetch(`/utilizadores/${id}`, { method:'DELETE' })
+  requisicaoSegura(`/utilizadores/${id}`, { method:'DELETE' })
     .then(r => { if (!r.ok) throw new Error(); })
     .then(() => { carregarUtilizadores(); mostrarMsg('utilizadorSucesso', 'Utilizador removido!'); })
     .catch(() => mostrarMsg('utilizadorErro', 'Erro ao remover!'));

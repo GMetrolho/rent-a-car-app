@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/api.js"></script>
   <style>
     .page-layout { display:flex; flex:1; }
 
@@ -155,36 +156,35 @@
         <h3>📋 Informações da Conta</h3>
 
         <!-- MODO VISUALIZAÇÃO -->
-        <div id="modoVer">
-          <div class="form-row">
-            <div class="info-field">
-              <label for="verNome">Nome</label>
-              <span id="verNome">—</span>
-            </div>
-            <div class="info-field">
-              <label for="verEmail>Email</label>
-              <span id="verEmail">—</span>
-            </div>
-            <div class="info-field">
-              <label for="verTelefone">Telefone</label>
-              <span id="verTelefone">—</span>
-            </div>
-            <div class="info-field">
-              <label for="verNif">NIF</label>
-              <span id="verNif">—</span>
-            </div>
-            <div class="info-field">
-              <label for="verTipoConta">Tipo de Conta</label>
-              <span id="verTipoConta">—</span>
-            </div>
-            <div class="info-field">
-              <label for="verId">ID de Utilizador</label>
-              <span id="verId">—</span>
-            </div>
+      <div id="modoVer">
+        <div class="form-row">
+          <div class="info-field">
+            <span class="text-muted small fw-medium">Nome</span>
+            <span id="verNome">—</span>
           </div>
-          <button class="btn-editar" onclick="ativarEdicao()">✏️ Editar Dados</button>
+          <div class="info-field">
+            <span class="text-muted small fw-medium">Email</span>
+            <span id="verEmail">—</span>
+          </div>
+          <div class="info-field">
+            <span class="text-muted small fw-medium">Telefone</span>
+            <span id="verTelefone">—</span>
+          </div>
+          <div class="info-field">
+            <span class="text-muted small fw-medium">NIF</span>
+            <span id="verNif">—</span>
+          </div>
+          <div class="info-field">
+            <span class="text-muted small fw-medium">Tipo de Conta</span>
+            <span id="verTipoConta">—</span>
+          </div>
+          <div class="info-field">
+            <span class="text-muted small fw-medium">ID de Utilizador</span>
+            <span id="verId">—</span>
+          </div>
         </div>
-
+        <button class="btn-editar" onclick="ativarEdicao()">✏️ Editar Dados</button>
+        </div>
         <!-- MODO EDIÇÃO -->
         <div id="modoEditar" style="display:none;">
           <div class="alert-erro"    id="editErro"></div>
@@ -291,7 +291,7 @@
       document.getElementById('editNif').value = u.nif || '';
     }
 
-    fetch(`/utilizadores/${utilizador.id}`)
+    requisicaoSegura(`/utilizadores/${utilizador.id}`)
       .then(res => {
         if (!res.ok) throw new Error('Erro ao sincronizar dados com o servidor');
       return res.json();
@@ -367,7 +367,7 @@
         password: password || utilizador.password
       };
 
-      fetch(`/utilizadores/${utilizador.id}`, {
+      requisicaoSegura(`/utilizadores/${utilizador.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -392,7 +392,7 @@
     }
 
     // HISTÓRICO DE ALUGUERES
-    fetch('/alugueres')
+    requisicaoSegura('/alugueres')
       .then(r => r.json())
       .then(alugueres => {
         const meus = alugueres.filter(a => a.cliente?.id === utilizador.id);

@@ -205,11 +205,11 @@
             <option value="GASOLEO">Gasóleo</option>
           </select>
         </div>
-        <div class="col-6"><label class="form-label-custom">Categoria</label>
+        <div class="col-6"><label class="form-label-custom" for="vCategoria">Categoria</label>
           <select class="form-control-custom" id="vCategoria"></select>
         </div>
         <div class="col-12">
-          <label class="form-label-custom">Imagem do Veículo (opcional)</label>
+          <label class="form-label-custom" for="vImagem">Imagem do Veículo (opcional)</label>
           <label for="vImagem" style="display:flex; align-items:center; gap:10px; cursor:pointer; background:#f8fafc; border:1.5px dashed var(--border); border-radius:8px; padding:12px 16px; transition:border-color 0.2s;">
             <span style="font-size:20px;">🖼️</span>
             <span id="vImagemLabel" style="font-size:13px; color:var(--text-muted);">Clica para escolher uma imagem...</span>
@@ -228,8 +228,12 @@
       <button class="modal-close" onclick="fecharModalCategoria()">✕</button>
       <div class="modal-title">Adicionar Categoria</div>
       <div class="alert-erro" id="modalCategoriaErro"></div>
-      <div class="mb-3"><label class="form-label-custom">Nome</label><input class="form-control-custom" id="catNome"/></div>
-      <div class="mb-3"><label class="form-label-custom">Descrição</label><input class="form-control-custom" id="catDescricao"/></div>
+      <div class="mb-3">
+        <label class="form-label-custom" for="catNome">Nome</label>
+        <input class="form-control-custom" id="catNome"/></div>
+      <div class="mb-3">
+        <label class="form-label-custom" for="catDescricao">Descrição</label>
+        <input class="form-control-custom" id="catDescricao"/></div>
       <button class="btn-orange-custom w-100 mt-2" onclick="guardarCategoria()">Guardar</button>
     </div>
   </div>
@@ -240,7 +244,7 @@
       <button class="modal-close" onclick="fecharModalCargo()">✕</button>
       <div class="modal-title">Editar Cargo</div>
       <input type="hidden" id="cargoUtilizadorId"/>
-      <div class="mb-3"><label class="form-label-custom">Cargo</label>
+      <div class="mb-3"><label class="form-label-custom" for="novoCargo">Cargo</label>
         <select class="form-control-custom" id="novoCargo">
           <option value="CLIENTE">Cliente</option>
           <option value="FUNCIONARIO">Funcionário</option>

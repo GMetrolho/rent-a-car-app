@@ -10,22 +10,54 @@ function atualizarNavbarDinamica() {
 
   const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
 
-  if (utilizador) {
-    // 👤 CASO LOGADO: Bate 100% com o teu protótipo visual
-    const isStaff = utilizador.cargo === 'ADMIN' || utilizador.cargo === 'FUNCIONARIO';
-
+  if (utilizador && sessionStorage.getItem('token')) {
     navActions.innerHTML = `
       <span class="navbar-user" style="margin-right: 12px;">👤 ${utilizador.nome}</span>
       <a href="perfil.html" class="btn-outline-custom" style="margin-right: 8px;">Perfil</a>
       <button class="btn-danger-custom" onclick="sair()">Terminar Sessão</button>
     `;
   } else {
-    // 🔓 CASO ANÓNIMO: Mantém o teu padrão original de botões
     navActions.innerHTML = `
       <a href="login.html"    class="btn-outline-custom" style="margin-right: 8px;">Login</a>
       <a href="register.html" class="btn-orange-custom">Registar</a>
     `;
   }
+}
+
+/**
+ * Função Mágica: Substitui o fetch global do teu projeto.
+ * Garante que o Token JWT vai sempre agarrado no cabeçalho dos teus pedidos ao Spring Boot.
+ */
+function requisicaoSegura(url, opcoes = {}) {
+  const token = sessionStorage.getItem('token');
+
+  if (!opcoes.headers) opcoes.headers = {};
+
+  if (token) {
+    opcoes.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  // Se enviares dados, garante o content-type correto
+  if (opcoes.body && typeof opcoes.body === 'object' && !(opcoes.body instanceof FormData)) {
+    opcoes.headers['Content-Type'] = 'application/json';
+    opcoes.body = JSON.stringify(opcoes.body);
+  }
+
+  // Faz o pedido apontando para a tua porta 8081 automaticamente
+  const urlCompleta = url.startsWith('http') ? url : `http://localhost:8081${url}`;
+
+  return fetch(urlCompleta, opcoes).then(res => {
+    // Se o Spring Security interceptar falta de permissão ou token inválido
+    if (res.status === 401 || res.status === 403) {
+       console.warn("Acesso negado ou Token inválido/expirado.");
+      if (!window.location.pathname.includes('login.html')) {
+        sessionStorage.clear();
+        window.location.href = 'login.html';
+      }
+    throw new Error("Sessão expirada. Por favor volte a fazer login.");
+    }
+    return res;
+  });
 }
 
 function formatData(dt) {
@@ -43,14 +75,20 @@ function mostrarMsg(id, msg) {
 }
 
 function sair() {
-  sessionStorage.removeItem('utilizador');
+  sessionStorage.clear();
   window.location.href = 'index.html';
 }
 
+/**
+ * Proteção de páginas administrativas do Dashboard
+ */
 function verificarSessao() {
   const utilizador = JSON.parse(sessionStorage.getItem('utilizador'));
-  if (!utilizador || (utilizador.cargo !== 'ADMIN' && utilizador.cargo !== 'FUNCIONARIO')) {
+  const token = sessionStorage.getItem('token');
+
+  if (!utilizador || !token || (utilizador.cargo !== 'ADMIN' && utilizador.cargo !== 'FUNCIONARIO')) {
     alert('Acesso Restrito! Área exclusiva para os funcionários.');
+    sessionStorage.clear();
     window.location.href = 'login.html';
     return null;
   }
