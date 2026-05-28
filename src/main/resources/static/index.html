@@ -144,22 +144,108 @@
     </div>
   </div>
 
+  <!-- ESTILOS DO CALENDAR PICKER -->
+  <style>
+    .cal-wrap { user-select:none; }
+    .cal-inputs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+    .cal-input-box { background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; cursor:pointer; transition:border-color 0.2s; }
+    .cal-input-box:hover { border-color:var(--blue); }
+    .cal-input-box.active { border-color:var(--blue); background:#eff6ff; }
+    .cal-input-label { font-size:11px; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+    .cal-input-val { font-size:14px; font-weight:600; color:var(--text); }
+    .cal-input-val.placeholder { color:#94a3b8; font-weight:400; }
+
+    .cal-popup { background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,0.12); overflow:hidden; margin-bottom:16px; }
+    .cal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--border); }
+    .cal-month-label { font-size:14px; font-weight:700; color:var(--text); }
+    .cal-nav { background:none; border:none; width:28px; height:28px; border-radius:8px; cursor:pointer; font-size:14px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+    .cal-nav:hover { background:#f1f5f9; color:var(--text); }
+    .cal-grid { padding:10px 12px 14px; }
+    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
+    .cal-weekdays span { text-align:center; font-size:11px; font-weight:600; color:var(--text-muted); padding:4px 0; }
+    .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+    .cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; cursor:pointer; transition:background 0.15s, color 0.15s; color:var(--text); position:relative; }
+    .cal-day:hover:not(.disabled):not(.empty) { background:#f1f5f9; }
+    .cal-day.disabled { color:#cbd5e1; cursor:not-allowed; }
+    .cal-day.empty { cursor:default; }
+    .cal-day.start { background:var(--blue) !important; color:#fff !important; border-radius:8px 0 0 8px; }
+    .cal-day.end   { background:var(--blue) !important; color:#fff !important; border-radius:0 8px 8px 0; }
+    .cal-day.start.end { border-radius:8px !important; }
+    .cal-day.in-range { background:#dbeafe; color:var(--blue); border-radius:0; }
+    .cal-day.today::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--orange); }
+    .cal-day.start.today::after, .cal-day.end.today::after { background:#fff; }
+
+    .cal-hint { font-size:12px; color:var(--text-muted); text-align:center; padding:6px 0 2px; }
+  </style>
+
   <div class="modal-overlay" id="modalReserva">
-    <div class="modal-box">
-      <button class="modal-close" onclick="fecharReserva()">✕</button>
-      <div class="modal-title">Fazer Reserva</div>
-      <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Veículo: <strong id="modalVeiculoNome"></strong></p>
-      <div class="alert-erro"    id="modalErro"></div>
-      <div class="alert-sucesso" id="modalSucesso"></div>
-      <div class="mb-3">
-        <label class="form-label-custom" for="dataLevantamento"">Data de levantamento</label>
-        <input type="datetime-local" class="form-control-custom" id="dataLevantamento" onchange="atualizarMinDevolucao()"/>
+    <div class="modal-box" style="max-width:460px; padding:0; overflow:hidden; border-radius:16px;">
+
+      <!-- HEADER -->
+      <div style="background:var(--blue); padding:20px 24px 16px; position:relative;">
+        <button onclick="fecharReserva()" style="position:absolute;top:14px;right:14px;color:#fff;opacity:0.8;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7);margin-bottom:4px;">Nova Reserva</div>
+        <div style="font-size:18px;font-weight:700;color:#fff;" id="modalVeiculoNome">—</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px;" id="modalVeiculoPreco">—</div>
       </div>
-      <div class="mb-3">
-        <label class="form-label-custom" for="dataDevolucao">Data de devolução</label>
-        <input type="datetime-local" class="form-control-custom" id="dataDevolucao"/>
+
+      <!-- BODY -->
+      <div style="padding:20px 24px;">
+        <div class="alert-erro"    id="modalErro"    style="margin-bottom:12px;display:none;"></div>
+        <div class="alert-sucesso" id="modalSucesso" style="margin-bottom:12px;display:none;"></div>
+
+        <div class="cal-wrap">
+          <!-- DISPLAY DAS DATAS SELECIONADAS -->
+          <div class="cal-inputs">
+            <div class="cal-input-box" id="boxLevantamento" onclick="calAbrirPicker('levantamento')">
+              <div class="cal-input-label">🛫 Levantamento</div>
+              <div class="cal-input-val placeholder" id="displayLevantamento">Escolher data</div>
+            </div>
+            <div class="cal-input-box" id="boxDevolucao" onclick="calAbrirPicker('devolucao')">
+              <div class="cal-input-label">🛬 Devolução</div>
+              <div class="cal-input-val placeholder" id="displayDevolucao">Escolher data</div>
+            </div>
+          </div>
+
+          <!-- CALENDÁRIO -->
+          <div class="cal-popup" id="calPopup">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="calNavMes(-1)">&#8249;</button>
+              <span class="cal-month-label" id="calMonthLabel"></span>
+              <button class="cal-nav" onclick="calNavMes(1)">&#8250;</button>
+            </div>
+            <div class="cal-grid">
+              <div class="cal-weekdays">
+                <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+              </div>
+              <div class="cal-days" id="calDays"></div>
+            </div>
+            <div class="cal-hint" id="calHint">Seleciona a data de levantamento</div>
+          </div>
+        </div>
+
+        <!-- RESUMO -->
+        <div id="resumoReserva" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Resumo</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:var(--text-muted);">Duração</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text);" id="resumoDias">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:13px;color:var(--text-muted);">Preço por dia</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text);" id="resumoPrecoDia">—</span>
+          </div>
+          <div style="border-top:1px solid var(--border);margin:10px 0;"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:14px;font-weight:600;color:var(--text);">Total estimado</span>
+            <span style="font-size:18px;font-weight:700;color:var(--blue);" id="resumoTotal">—</span>
+          </div>
+        </div>
+
+        <button class="btn-orange-custom w-100" id="btnConfirmarReserva" onclick="confirmarReserva()" disabled style="opacity:0.5;">
+          Confirmar Reserva
+        </button>
       </div>
-      <button class="btn-orange-custom w-100 mt-2" onclick="confirmarReserva()">Confirmar Reserva</button>
     </div>
   </div>
 
@@ -212,14 +298,14 @@
     }
 
     // ─── CATEGORIAS ──────────────────────────
-    apiFetch('/categorias').then(r => r.json()).then(cats => {
+    fetch('/categorias').then(r => r.json()).then(cats => {
       const sel = document.getElementById('filtroCategoria');
       cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.nome; sel.appendChild(o); });
     }).catch(() => {});
 
     // ─── VEICULOS ────────────────────────────
     function carregarVeiculos() {
-      apiFetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
+      fetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
         .catch(() => { document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>'; });
     }
 
@@ -342,53 +428,169 @@
       abrirReserva(veiculoSelecionado);
     }
 
+    // ─── CALENDAR PICKER CUSTOM ──────────────
+    let calMes, calAno, calSelecionar, calDataLev, calDataDev;
+
+    function calToStr(d) {
+      if (!d) return null;
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      return `${d.getFullYear()}-${mm}-${dd}`;
+    }
+    function calFmt(d) {
+      if (!d) return null;
+      return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short', year:'numeric' });
+    }
+    function calAbrirPicker(modo) {
+      calSelecionar = modo;
+      const hoje = new Date();
+      calMes = hoje.getMonth();
+      calAno = hoje.getFullYear();
+      // se já tem levantamento e estamos a escolher devolução, salta para esse mês
+      if (modo === 'devolucao' && calDataLev) {
+        calMes = calDataLev.getMonth();
+        calAno = calDataLev.getFullYear();
+      }
+      document.getElementById('boxLevantamento').classList.toggle('active', modo === 'levantamento');
+      document.getElementById('boxDevolucao').classList.toggle('active', modo === 'devolucao');
+      document.getElementById('calHint').textContent = modo === 'levantamento'
+        ? 'Seleciona a data de levantamento'
+        : 'Seleciona a data de devolução';
+      calRenderMes();
+    }
+    function calNavMes(dir) {
+      calMes += dir;
+      if (calMes > 11) { calMes = 0; calAno++; }
+      if (calMes < 0)  { calMes = 11; calAno--; }
+      calRenderMes();
+    }
+    function calRenderMes() {
+      const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      document.getElementById('calMonthLabel').textContent = `${meses[calMes]} ${calAno}`;
+
+      const hoje     = new Date(); hoje.setHours(0,0,0,0);
+      const primeiro = new Date(calAno, calMes, 1);
+      const ultimo   = new Date(calAno, calMes+1, 0).getDate();
+      const inicioSemana = primeiro.getDay(); // 0=Dom
+
+      let html = '';
+      // células vazias
+      for (let i = 0; i < inicioSemana; i++) html += '<div class="cal-day empty"></div>';
+
+      for (let d = 1; d <= ultimo; d++) {
+        const data = new Date(calAno, calMes, d);
+        data.setHours(0,0,0,0);
+
+        const isHoje     = data.getTime() === hoje.getTime();
+        const isPassado  = data < hoje && !isHoje;
+        const isLev      = calDataLev && data.getTime() === calDataLev.getTime();
+        const isDev      = calDataDev && data.getTime() === calDataDev.getTime();
+        const isInRange  = calDataLev && calDataDev && data > calDataLev && data < calDataDev;
+        const isDisabled = isPassado || (calSelecionar === 'devolucao' && calDataLev && data <= calDataLev);
+
+        let cls = 'cal-day';
+        if (isDisabled) cls += ' disabled';
+        if (isHoje)     cls += ' today';
+        if (isLev)      cls += ' start';
+        if (isDev)      cls += ' end';
+        if (isInRange)  cls += ' in-range';
+
+        html += `<div class="${cls}" ${isDisabled ? '' : `onclick="calSelecionarDia(${calAno},${calMes},${d})"`}>${d}</div>`;
+      }
+      document.getElementById('calDays').innerHTML = html;
+    }
+    function calSelecionarDia(ano, mes, dia) {
+      const data = new Date(ano, mes, dia);
+      if (calSelecionar === 'levantamento') {
+        calDataLev = data;
+        // se devolução já está e ficou inválida, reset
+        if (calDataDev && calDataDev <= calDataLev) calDataDev = null;
+        document.getElementById('displayLevantamento').textContent = calFmt(data);
+        document.getElementById('displayLevantamento').classList.remove('placeholder');
+        // avança automaticamente para escolher devolução
+        calAbrirPicker('devolucao');
+      } else {
+        calDataDev = data;
+        document.getElementById('displayDevolucao').textContent = calFmt(data);
+        document.getElementById('displayDevolucao').classList.remove('placeholder');
+        document.getElementById('boxLevantamento').classList.remove('active');
+        document.getElementById('boxDevolucao').classList.remove('active');
+        document.getElementById('calHint').textContent = 'Datas selecionadas ✓';
+      }
+      calRenderMes();
+      calCalcularResumo();
+    }
+    function calCalcularResumo() {
+      const btn = document.getElementById('btnConfirmarReserva');
+      if (!calDataLev || !calDataDev) {
+        document.getElementById('resumoReserva').style.display = 'none';
+        btn.disabled = true; btn.style.opacity = '0.5';
+        return;
+      }
+      const msPerDay = 1000*60*60*24;
+      const dias = Math.round((calDataDev - calDataLev) / msPerDay);
+      if (dias <= 0) return;
+      const precoDia = veiculoSelecionado.precoDiario;
+      const total = dias * precoDia;
+      document.getElementById('resumoDias').textContent     = `${dias} dia${dias > 1 ? 's' : ''}`;
+      document.getElementById('resumoPrecoDia').textContent = `${precoDia}€`;
+      document.getElementById('resumoTotal').textContent    = `${total.toFixed(2)}€`;
+      document.getElementById('resumoReserva').style.display = 'block';
+      btn.disabled = false; btn.style.opacity = '1';
+    }
+
     // ─── MODAL RESERVA ───────────────────────
     function abrirReserva(veiculo) {
       if (!utilizadorLogado) { window.location.href = 'login.html'; return; }
       veiculoSelecionado = veiculo;
-      document.getElementById('modalVeiculoNome').textContent = `${veiculo.marca} ${veiculo.modelo}`;
-      document.getElementById('modalErro').style.display = document.getElementById('modalSucesso').style.display = 'none';
+      calDataLev = null; calDataDev = null;
 
-      const agora = new Date();
-      agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
-      const minStr = agora.toISOString().slice(0, 16);
-      document.getElementById('dataLevantamento').min = minStr;
-      document.getElementById('dataLevantamento').value = '';
-      document.getElementById('dataDevolucao').min = minStr;
-      document.getElementById('dataDevolucao').value = '';
+      document.getElementById('modalVeiculoNome').textContent  = `${veiculo.marca} ${veiculo.modelo}`;
+      document.getElementById('modalVeiculoPreco').textContent = `${veiculo.precoDiario}€ / dia`;
+      document.getElementById('modalErro').style.display    = 'none';
+      document.getElementById('modalSucesso').style.display = 'none';
+      document.getElementById('resumoReserva').style.display = 'none';
+      document.getElementById('displayLevantamento').textContent = 'Escolher data';
+      document.getElementById('displayLevantamento').className   = 'cal-input-val placeholder';
+      document.getElementById('displayDevolucao').textContent    = 'Escolher data';
+      document.getElementById('displayDevolucao').className      = 'cal-input-val placeholder';
+      document.getElementById('btnConfirmarReserva').disabled    = true;
+      document.getElementById('btnConfirmarReserva').style.opacity = '0.5';
+      document.getElementById('boxLevantamento').classList.remove('active');
+      document.getElementById('boxDevolucao').classList.remove('active');
 
+      // Abrir logo no picker de levantamento
+      calAbrirPicker('levantamento');
       document.getElementById('modalReserva').classList.add('open');
-    }
-
-    function atualizarMinDevolucao() {
-      const lev = document.getElementById('dataLevantamento').value;
-      if (lev) document.getElementById('dataDevolucao').min = lev;
     }
 
     function fecharReserva() { document.getElementById('modalReserva').classList.remove('open'); }
 
     function confirmarReserva() {
-      const lev     = document.getElementById('dataLevantamento').value;
-      const dev     = document.getElementById('dataDevolucao').value;
       const erro    = document.getElementById('modalErro');
       const sucesso = document.getElementById('modalSucesso');
       erro.style.display = sucesso.style.display = 'none';
 
-      if (!lev || !dev) { erro.innerText = 'Preenche as duas datas!'; erro.style.display = 'block'; return; }
+      if (!calDataLev || !calDataDev) {
+        erro.innerText = 'Seleciona as duas datas!';
+        erro.style.display = 'block';
+        return;
+      }
 
       const params = new URLSearchParams({
-        idVeiculo: veiculoSelecionado.id,
-        idCliente: utilizadorLogado.id,
-        dataLevantamento: lev,
-        dataDevolucao:    dev
+        idVeiculo:        veiculoSelecionado.id,
+        idCliente:        utilizadorLogado.id,
+        dataLevantamento: calToStr(calDataLev) + 'T00:00',
+        dataDevolucao:    calToStr(calDataDev) + 'T00:00'
       });
 
       apiFetch('/alugueres?' + params, { method: 'POST' })
         .then(res => { if (!res.ok) return res.text().then(m => { throw new Error(m); }); return res.json(); })
         .then(() => {
-          sucesso.innerText = 'Reserva feita com sucesso!';
+          sucesso.innerText = '✅ Reserva feita com sucesso!';
           sucesso.style.display = 'block';
-          setTimeout(() => { fecharReserva(); carregarVeiculos(); }, 1500);
+          document.getElementById('btnConfirmarReserva').disabled = true;
+          setTimeout(() => { fecharReserva(); carregarVeiculos(); }, 1800);
         })
         .catch(err => { erro.innerText = err.message || 'Erro ao fazer reserva!'; erro.style.display = 'block'; });
     }
