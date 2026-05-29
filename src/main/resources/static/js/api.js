@@ -30,15 +30,49 @@ function atualizarNavbarDinamica() {
  */
 function apiFetch(url, opcoes = {}) {
   const urlCompleta = url.startsWith('http') ? url : `http://localhost:8081${url}`;
-  return window.fetch(urlCompleta, opcoes).then(res => {
+
+  return window.fetch(urlCompleta, opcoes).then(async (res) => {
+    // 1. Tratamento imediato para problemas de segurança (sessão expirada/acesso negado)
     if (res.status === 401 || res.status === 403) {
       console.warn("Acesso negado.");
       if (!window.location.pathname.includes('login.html')) {
         sessionStorage.clear();
         window.location.href = 'login.html';
       }
-      throw new Error("Sessão inválida. Por favor volte a fazer login.");
+      throw new Error("Sessão inválida. Por favor, volte a fazer login.");
     }
+
+    // 2. Se a resposta for um erro (Status 4xx ou 5xx)
+    if (!res.ok) {
+      const text = await res.text(); // Extrair o texto cru da resposta de erro
+      let mensagemErro = "Ocorreu um erro inesperado ao comunicar com o servidor."; // Fallback seguro
+
+      if (text) {
+        try {
+          // Tentar processar a resposta caso o Spring Boot devolva um objeto JSON
+          const errorObj = JSON.parse(text);
+
+          if (errorObj.message) {
+            // Se o backend enviar um campo "message" bonitinho, nós usamo-lo!
+            mensagemErro = errorObj.message;
+          } else if (errorObj.error === "Internal Server Error") {
+            // Se for o erro padrão de "rebentamento" do Spring Boot
+            mensagemErro = "Erro interno no servidor. Por favor, tenta novamente.";
+          } else {
+             // Tentar usar algo do corpo caso as propriedades acima falhem
+             mensagemErro = errorObj.error || text;
+          }
+        } catch (e) {
+          // Se falhar o "JSON.parse", significa que o servidor mandou texto simples, usamos isso
+          mensagemErro = text;
+        }
+      }
+
+      // Lança um erro real em JavaScript para ser capturado no ".catch()" de quem chamou a função
+      throw new Error(mensagemErro);
+    }
+
+    // 3. Se tudo correu bem, devolve a resposta normal para ser processada
     return res;
   });
 }

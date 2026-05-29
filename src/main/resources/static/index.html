@@ -70,7 +70,6 @@
           <span id="dashArrow" style="font-size:11px; transition:transform 0.2s;">▾</span>
         </div>
         <div id="dashSubMenu" style="display:none; border-left:2px solid #3b5270; margin-left:18px; margin-top:2px;">
-          <!-- preenchido por JS consoante o cargo -->
         </div>
       </div>
     </div>
@@ -144,58 +143,112 @@
     </div>
   </div>
 
-  <!-- ESTILOS DO CALENDAR PICKER -->
   <style>
     .cal-wrap { user-select:none; }
-    .cal-inputs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
-    .cal-input-box { background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:10px 14px; cursor:pointer; transition:border-color 0.2s; }
+    .cal-inputs { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .cal-input-box { background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:8px 12px; cursor:pointer; transition:border-color 0.2s; }
     .cal-input-box:hover { border-color:var(--blue); }
     .cal-input-box.active { border-color:var(--blue); background:#eff6ff; }
-    .cal-input-label { font-size:11px; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
-    .cal-input-val { font-size:14px; font-weight:600; color:var(--text); }
+    .cal-input-label { font-size:10px; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px; }
+    .cal-input-val { font-size:13px; font-weight:600; color:var(--text); }
     .cal-input-val.placeholder { color:#94a3b8; font-weight:400; }
 
-    .cal-popup { background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,0.12); overflow:hidden; margin-bottom:16px; }
-    .cal-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; border-bottom:1px solid var(--border); }
-    .cal-month-label { font-size:14px; font-weight:700; color:var(--text); }
-    .cal-nav { background:none; border:none; width:28px; height:28px; border-radius:8px; cursor:pointer; font-size:14px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
+    .cal-popup { background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 2px 8px rgba(0,0,0,0.04); overflow:hidden; flex: 1; }
+    .cal-header { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 8px; border-bottom:1px solid var(--border); }
+    .cal-month-label { font-size:13px; font-weight:700; color:var(--text); }
+    .cal-nav { background:none; border:none; width:26px; height:26px; border-radius:6px; cursor:pointer; font-size:13px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; transition:background 0.15s; }
     .cal-nav:hover { background:#f1f5f9; color:var(--text); }
-    .cal-grid { padding:10px 12px 14px; }
-    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px; }
-    .cal-weekdays span { text-align:center; font-size:11px; font-weight:600; color:var(--text-muted); padding:4px 0; }
+    .cal-grid { padding:8px 10px; }
+    .cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px; }
+    .cal-weekdays span { text-align:center; font-size:11px; font-weight:600; color:var(--text-muted); padding:2px 0; }
+
+    /* CORREÇÃO DO TAMANHO DOS DIAS: Bloqueado estruturalmente para nunca esticar o container */
     .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-    .cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:13px; border-radius:8px; cursor:pointer; transition:background 0.15s, color 0.15s; color:var(--text); position:relative; }
+    .cal-day {
+      aspect-ratio:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:13px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:background 0.15s, color 0.15s;
+      color:var(--text);
+      position:relative;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
     .cal-day:hover:not(.disabled):not(.empty) { background:#f1f5f9; }
-    .cal-day.disabled { color:#cbd5e1; cursor:not-allowed; }
-    .cal-day.empty { cursor:default; }
+
+    /* Classes de estado sincronizadas para não alterar margens ou preenchimento */
+    .cal-day.disabled { color:#cbd5e1; cursor:not-allowed; background: none !important; border: none !important; }
+    .cal-day.empty { cursor:default; background: none !important; border: none !important; }
     .cal-day.start { background:var(--blue) !important; color:#fff !important; border-radius:8px 0 0 8px; }
     .cal-day.end   { background:var(--blue) !important; color:#fff !important; border-radius:0 8px 8px 0; }
     .cal-day.start.end { border-radius:8px !important; }
-    .cal-day.in-range { background:#dbeafe; color:var(--blue); border-radius:0; }
+    .cal-day.in-range { background:#dbeafe !important; color:var(--blue) !important; border-radius:0; }
     .cal-day.today::after { content:''; position:absolute; bottom:3px; left:50%; transform:translateX(-50%); width:4px; height:4px; border-radius:50%; background:var(--orange); }
     .cal-day.start.today::after, .cal-day.end.today::after { background:#fff; }
 
-    .cal-hint { font-size:12px; color:var(--text-muted); text-align:center; padding:6px 0 2px; }
+    .cal-hint { font-size:11px; color:var(--text-muted); text-align:center; padding:4px 0 0; }
+
+    /* SELETOR DE HORA LATERAL */
+    .time-sidebar-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      width: 170px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      justify-content: center;
+    }
+    .time-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .time-select-group label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .time-dropdown {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      width: 100%;
+    }
+    .time-dropdown:focus {
+      border-color: var(--blue);
+      outline: none;
+    }
   </style>
 
   <div class="modal-overlay" id="modalReserva">
-    <div class="modal-box" style="max-width:460px; padding:0; overflow:hidden; border-radius:16px;">
+    <div class="modal-box" style="max-width:620px; width:95%; max-height: 90vh; padding:0; overflow:hidden; border-radius:16px; display: flex; flex-direction: column;">
 
-      <!-- HEADER -->
-      <div style="background:var(--blue); padding:20px 24px 16px; position:relative;">
+      <div style="background:var(--blue); padding:16px 24px; position:relative; flex-shrink: 0;">
         <button onclick="fecharReserva()" style="position:absolute;top:14px;right:14px;color:#fff;opacity:0.8;background:rgba(255,255,255,0.15);border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7);margin-bottom:4px;">Nova Reserva</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.7);margin-bottom:2px;">Nova Reserva</div>
         <div style="font-size:18px;font-weight:700;color:#fff;" id="modalVeiculoNome">—</div>
         <div style="font-size:13px;color:rgba(255,255,255,0.75);margin-top:2px;" id="modalVeiculoPreco">—</div>
       </div>
 
-      <!-- BODY -->
-      <div style="padding:20px 24px;">
-        <div class="alert-erro"    id="modalErro"    style="margin-bottom:12px;display:none;"></div>
-        <div class="alert-sucesso" id="modalSucesso" style="margin-bottom:12px;display:none;"></div>
+      <div style="padding:16px 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 12px;">
+        <div class="alert-erro"    id="modalErro"    style="margin-bottom:0; display:none;"></div>
+        <div class="alert-sucesso" id="modalSucesso" style="margin-bottom:0; display:none;"></div>
 
         <div class="cal-wrap">
-          <!-- DISPLAY DAS DATAS SELECIONADAS -->
           <div class="cal-inputs">
             <div class="cal-input-box" id="boxLevantamento" onclick="calAbrirPicker('levantamento')">
               <div class="cal-input-label">🛫 Levantamento</div>
@@ -207,42 +260,62 @@
             </div>
           </div>
 
-          <!-- CALENDÁRIO -->
-          <div class="cal-popup" id="calPopup">
-            <div class="cal-header">
-              <button class="cal-nav" onclick="calNavMes(-1)">&#8249;</button>
-              <span class="cal-month-label" id="calMonthLabel"></span>
-              <button class="cal-nav" onclick="calNavMes(1)">&#8250;</button>
-            </div>
-            <div class="cal-grid">
-              <div class="cal-weekdays">
-                <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+          <div style="display: flex; gap: 14px; align-items: stretch;">
+
+            <div class="cal-popup">
+              <div class="cal-header">
+                <button class="cal-nav" onclick="calNavMes(-1)">&#8249;</button>
+                <span class="cal-month-label" id="calMonthLabel"></span>
+                <button class="cal-nav" onclick="calNavMes(1)">&#8250;</button>
               </div>
-              <div class="cal-days" id="calDays"></div>
+              <div class="cal-grid">
+                <div class="cal-weekdays">
+                  <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+                </div>
+                <div class="cal-days" id="calDays"></div>
+              </div>
+              <div class="cal-hint" id="calHint">Seleciona a data de levantamento</div>
             </div>
-            <div class="cal-hint" id="calHint">Seleciona a data de levantamento</div>
+
+            <div class="time-sidebar-box">
+              <div class="time-select-group">
+                <label>Hora Levantamento</label>
+                <select id="selectHoraLev" class="time-dropdown" onchange="onSelectHoraChange('levantamento')">
+                </select>
+              </div>
+
+              <div style="border-top: 1px dashed var(--border); margin: 2px 0;"></div>
+
+              <div class="time-select-group">
+                <label>Hora Devolução</label>
+                <select id="selectHoraDev" class="time-dropdown" onchange="onSelectHoraChange('devolucao')">
+                </select>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <!-- RESUMO -->
-        <div id="resumoReserva" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:16px;">
-          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Resumo</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:13px;color:var(--text-muted);">Duração</span>
-            <span style="font-size:13px;font-weight:600;color:var(--text);" id="resumoDias">—</span>
+        <div id="resumoReserva" style="display:none; background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:12px;">
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Resumo</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:12px;color:var(--text-muted);">Duração</span>
+            <span style="font-size:12px;font-weight:600;color:var(--text);" id="resumoDias">—</span>
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:13px;color:var(--text-muted);">Preço por dia</span>
-            <span style="font-size:13px;font-weight:600;color:var(--text);" id="resumoPrecoDia">—</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:12px;color:var(--text-muted);">Preço por dia</span>
+            <span style="font-size:12px;font-weight:600;color:var(--text);" id="resumoPrecoDia">—</span>
           </div>
-          <div style="border-top:1px solid var(--border);margin:10px 0;"></div>
+          <div style="border-top:1px solid var(--border);margin:6px 0;"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:14px;font-weight:600;color:var(--text);">Total estimado</span>
-            <span style="font-size:18px;font-weight:700;color:var(--blue);" id="resumoTotal">—</span>
+            <span style="font-size:13px;font-weight:600;color:var(--text);">Total estimado</span>
+            <span style="font-size:16px;font-weight:700;color:var(--blue);" id="resumoTotal">—</span>
           </div>
         </div>
+      </div>
 
-        <button class="btn-orange-custom w-100" id="btnConfirmarReserva" onclick="confirmarReserva()" disabled style="opacity:0.5;">
+      <div style="padding: 12px 24px; background: #fff; border-top: 1px solid var(--border); flex-shrink: 0;">
+        <button class="btn-orange-custom w-100" id="btnConfirmarReserva" onclick="confirmarReserva()" disabled style="opacity:0.5; padding: 10px; font-weight: 600; font-size: 14px;">
           Confirmar Reserva
         </button>
       </div>
@@ -255,7 +328,6 @@
     let veiculoSelecionado = null;
     const utilizadorLogado = JSON.parse(sessionStorage.getItem('utilizador'));
 
-    // Atualiza sidebar consoante o cargo
     if (utilizadorLogado) {
       const isAdmin      = utilizadorLogado.cargo === 'ADMIN';
       const isFuncionario = utilizadorLogado.cargo === 'FUNCIONARIO';
@@ -263,10 +335,8 @@
 
       if (isStaff) {
         document.getElementById('sidebarDashboard').style.display = 'block';
-
         const dashUrl  = isAdmin ? 'admin_dashboard.html' : 'dashboard.html';
 
-        // Sub-abas consoante cargo
         const abas = isAdmin
           ? [
               { icon: '📊', label: 'Overview',      secao: 'overview'      },
@@ -297,13 +367,11 @@
       arrow.style.transform = open ? '' : 'rotate(-90deg)';
     }
 
-    // ─── CATEGORIAS ──────────────────────────
     fetch('/categorias').then(r => r.json()).then(cats => {
       const sel = document.getElementById('filtroCategoria');
       cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.nome; sel.appendChild(o); });
     }).catch(() => {});
 
-    // ─── VEICULOS ────────────────────────────
     function carregarVeiculos() {
       fetch('/veiculos').then(r => r.json()).then(v => { todosVeiculos = v; renderVeiculos(v); })
         .catch(() => { document.getElementById('carsGrid').innerHTML = '<div class="empty-state">Erro ao carregar veículos.</div>'; });
@@ -339,7 +407,6 @@
       return { DISPONIVEL:'badge-disponivel', ALUGADO:'badge-alugado', MANUTENCAO:'badge-manutencao' }[s] || 'badge-cliente';
     }
 
-    // ─── FILTROS ─────────────────────────────
     function onMotorChange() {
       const motor = document.getElementById('filtroMotor').value;
       const grupoCombustao = document.getElementById('grupoCombustao');
@@ -354,8 +421,6 @@
       } else {
         grupoCombustao.style.display = 'flex';
         grupoCaixa.style.display = 'flex';
-
-
       }
     }
 
@@ -380,7 +445,6 @@
       renderVeiculos(todosVeiculos);
     }
 
-    // ─── POP-UP DETALHES ─────────────────────
     function abrirDetalhes(v) {
       const img = document.getElementById('popupImagem');
       img.innerHTML = `<img src="img/${v.marca.toLowerCase()}_${v.modelo.toLowerCase().replace(/\s+/g,'_')}.png" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentElement.innerHTML='🚗'"/>`;
@@ -430,23 +494,60 @@
 
     // ─── CALENDAR PICKER CUSTOM ──────────────
     let calMes, calAno, calSelecionar, calDataLev, calDataDev;
+    let calHoraLev = { h: 9, m: 0 };
+    let calHoraDev = { h: 9, m: 0 };
 
-    function calToStr(d) {
+    function carregarDropdownsHoras() {
+      const dropLev = document.getElementById('selectHoraLev');
+      const dropDev = document.getElementById('selectHoraDev');
+      let htmlOptions = '';
+
+      for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 15) {
+          const hh = String(h).padStart(2, '0');
+          const mm = String(m).padStart(2, '0');
+          const selected = (h === 9 && m === 0) ? 'selected' : '';
+          htmlOptions += `<option value="${h}:${m}" ${selected}>${hh}:${mm}</option>`;
+        }
+      }
+      dropLev.innerHTML = htmlOptions;
+      dropDev.innerHTML = htmlOptions;
+    }
+
+    function onSelectHoraChange(tipo) {
+      if (tipo === 'levantamento') {
+        const [h, m] = document.getElementById('selectHoraLev').value.split(':');
+        calHoraLev = { h: parseInt(h), m: parseInt(m) };
+        if (calDataLev) document.getElementById('displayLevantamento').textContent = calFmt(calDataLev, calHoraLev);
+      } else {
+        const [h, m] = document.getElementById('selectHoraDev').value.split(':');
+        calHoraDev = { h: parseInt(h), m: parseInt(m) };
+        if (calDataDev) document.getElementById('displayDevolucao').textContent = calFmt(calDataDev, calHoraDev);
+      }
+      calCalcularResumo();
+    }
+
+    function calToStr(d, hora) {
       if (!d) return null;
       const mm = String(d.getMonth()+1).padStart(2,'0');
       const dd = String(d.getDate()).padStart(2,'0');
-      return `${d.getFullYear()}-${mm}-${dd}`;
+      const hh = String(hora.h).padStart(2,'0');
+      const mi = String(hora.m).padStart(2,'0');
+      return `${d.getFullYear()}-${mm}-${dd}T${hh}:${mi}`;
     }
-    function calFmt(d) {
+
+    function calFmt(d, hora) {
       if (!d) return null;
-      return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short', year:'numeric' });
+      const hh = String(hora.h).padStart(2,'0');
+      const mi = String(hora.m).padStart(2,'0');
+      return d.toLocaleDateString('pt-PT', { day:'2-digit', month:'short', year:'numeric' }) + ' ' + hh + ':' + mi;
     }
+
     function calAbrirPicker(modo) {
       calSelecionar = modo;
       const hoje = new Date();
       calMes = hoje.getMonth();
       calAno = hoje.getFullYear();
-      // se já tem levantamento e estamos a escolher devolução, salta para esse mês
       if (modo === 'devolucao' && calDataLev) {
         calMes = calDataLev.getMonth();
         calAno = calDataLev.getFullYear();
@@ -456,14 +557,17 @@
       document.getElementById('calHint').textContent = modo === 'levantamento'
         ? 'Seleciona a data de levantamento'
         : 'Seleciona a data de devolução';
+
       calRenderMes();
     }
+
     function calNavMes(dir) {
       calMes += dir;
       if (calMes > 11) { calMes = 0; calAno++; }
       if (calMes < 0)  { calMes = 11; calAno--; }
       calRenderMes();
     }
+
     function calRenderMes() {
       const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
       document.getElementById('calMonthLabel').textContent = `${meses[calMes]} ${calAno}`;
@@ -471,10 +575,9 @@
       const hoje     = new Date(); hoje.setHours(0,0,0,0);
       const primeiro = new Date(calAno, calMes, 1);
       const ultimo   = new Date(calAno, calMes+1, 0).getDate();
-      const inicioSemana = primeiro.getDay(); // 0=Dom
+      const inicioSemana = primeiro.getDay();
 
       let html = '';
-      // células vazias
       for (let i = 0; i < inicioSemana; i++) html += '<div class="cal-day empty"></div>';
 
       for (let d = 1; d <= ultimo; d++) {
@@ -499,27 +602,29 @@
       }
       document.getElementById('calDays').innerHTML = html;
     }
+
     function calSelecionarDia(ano, mes, dia) {
       const data = new Date(ano, mes, dia);
       if (calSelecionar === 'levantamento') {
         calDataLev = data;
-        // se devolução já está e ficou inválida, reset
         if (calDataDev && calDataDev <= calDataLev) calDataDev = null;
-        document.getElementById('displayLevantamento').textContent = calFmt(data);
+        document.getElementById('displayLevantamento').textContent = calFmt(data, calHoraLev);
         document.getElementById('displayLevantamento').classList.remove('placeholder');
-        // avança automaticamente para escolher devolução
+
         calAbrirPicker('devolucao');
       } else {
         calDataDev = data;
-        document.getElementById('displayDevolucao').textContent = calFmt(data);
+        document.getElementById('displayDevolucao').textContent = calFmt(data, calHoraDev);
         document.getElementById('displayDevolucao').classList.remove('placeholder');
         document.getElementById('boxLevantamento').classList.remove('active');
         document.getElementById('boxDevolucao').classList.remove('active');
+
         document.getElementById('calHint').textContent = 'Datas selecionadas ✓';
       }
       calRenderMes();
       calCalcularResumo();
     }
+
     function calCalcularResumo() {
       const btn = document.getElementById('btnConfirmarReserva');
       if (!calDataLev || !calDataDev) {
@@ -539,11 +644,15 @@
       btn.disabled = false; btn.style.opacity = '1';
     }
 
-    // ─── MODAL RESERVA ───────────────────────
     function abrirReserva(veiculo) {
       if (!utilizadorLogado) { window.location.href = 'login.html'; return; }
       veiculoSelecionado = veiculo;
       calDataLev = null; calDataDev = null;
+      calHoraLev = { h: 9, m: 0 };
+      calHoraDev = { h: 9, m: 0 };
+
+      document.getElementById('selectHoraLev').value = "9:00";
+      document.getElementById('selectHoraDev').value = "9:00";
 
       document.getElementById('modalVeiculoNome').textContent  = `${veiculo.marca} ${veiculo.modelo}`;
       document.getElementById('modalVeiculoPreco').textContent = `${veiculo.precoDiario}€ / dia`;
@@ -559,7 +668,6 @@
       document.getElementById('boxLevantamento').classList.remove('active');
       document.getElementById('boxDevolucao').classList.remove('active');
 
-      // Abrir logo no picker de levantamento
       calAbrirPicker('levantamento');
       document.getElementById('modalReserva').classList.add('open');
     }
@@ -580,8 +688,8 @@
       const params = new URLSearchParams({
         idVeiculo:        veiculoSelecionado.id,
         idCliente:        utilizadorLogado.id,
-        dataLevantamento: calToStr(calDataLev) + 'T00:00',
-        dataDevolucao:    calToStr(calDataDev) + 'T00:00'
+        dataLevantamento: calToStr(calDataLev, calHoraLev),
+        dataDevolucao:    calToStr(calDataDev, calHoraDev)
       });
 
       apiFetch('/alugueres?' + params, { method: 'POST' })
@@ -595,6 +703,7 @@
         .catch(err => { erro.innerText = err.message || 'Erro ao fazer reserva!'; erro.style.display = 'block'; });
     }
 
+    carregarDropdownsHoras();
     carregarVeiculos();
   </script>
 </body>
