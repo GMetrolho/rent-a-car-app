@@ -26,8 +26,8 @@ body {
 ───────────────────────────────────────────── */
 .navbar {
   background: var(--primary);
-  padding: 8px 28px;
-  min-height: 70px;
+  padding: 0 28px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
