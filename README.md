@@ -11,17 +11,17 @@ A full-stack car rental management system built with Java and Spring Boot, featu
 ![Login](src/main/resources/static/img/screenshots/login.png)
 ![Register](src/main/resources/static/img/screenshots/criar_conta.png)
 
-### 📅 Booking System
+### 📅 Booking Calendar
 ![Booking](src/main/resources/static/img/screenshots/Reserva.png)
 
-### 👤 User Dashboard
+### 📋 Current Rentals
 ![Rentals](src/main/resources/static/img/screenshots/Alugueres.png)
 
 ### 🛡️ Admin Dashboard
-![Admin Overview](src/main/resources/static/img/screenshots/Overview.png)
-![Admin Vehicles](src/main/resources/static/img/screenshots/Veículos.png)
-![Admin Categories](src/main/resources/static/img/screenshots/Categorias.png)
-![Admin Users](src/main/resources/static/img/screenshots/Utilizadores.png)
+![Overview](src/main/resources/static/img/screenshots/Overview.png)
+![Vehicles](src/main/resources/static/img/screenshots/Veículos.png)
+![Categories](src/main/resources/static/img/screenshots/Categorias.png)
+![Users](src/main/resources/static/img/screenshots/Utilizadores.png)
 
 ## 🛠️ Tech Stack
 
@@ -42,7 +42,7 @@ A full-stack car rental management system built with Java and Spring Boot, featu
 - 🔐 **User authentication** — Login and registration for personal and business accounts
 - 🚘 **Vehicle catalogue** — Browse available cars with images, pricing and filters (type, fuel, gearbox, category, status)
 - 📅 **Booking system** — Interactive calendar to select pickup and return dates with real-time price calculation
-- 👤 **User dashboard** — View and manage personal rentals with status tracking
+- 📋 **Rental tracking** — View and manage current rentals with status updates
 - 🛡️ **Admin dashboard** — Full control over vehicles, users, categories and rentals with charts and statistics
 - 👥 **Role-based access** — Client, Employee and Admin roles with different permissions
 - 📁 **Category management** — Organise vehicles by category (Familiar, SUV, Desportivo, Premium, Citadino, Superdesportivo)
